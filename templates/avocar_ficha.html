@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
+    </div>
+</div>
+
+<div class="card shadow border-0 mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Avocar Ficha de Entrevista</h5>
+    </div>
+    <div class="card-body bg-light">
+        <p class="text-muted">Use esta função apenas caso ocorra algum problema no fluxo da ficha e seja necessário intervir manualmente.</p>
+        
+        <div class="row mb-4 border-bottom pb-3">
+            <div class="col-md-3"><strong>Nº Sequencial:</strong> {{ ficha.num_sequencial }}</div>
+            <div class="col-md-4"><strong>Candidato:</strong> {{ ficha.nome_completo or 'Não preenchido' }}</div>
+            <div class="col-md-5"><strong>Status Atual:</strong> 
+                <span class="badge bg-secondary">{{ ficha.status }}</span>
+            </div>
+        </div>
+
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Alterar Status (Fase Atual) para:</label>
+                    <select class="form-select" name="novo_status" required>
+                        <option value="AGUARDANDO_CANDIDATO" {% if ficha.status == 'AGUARDANDO_CANDIDATO' %}selected{% endif %}>Retornar ao Candidato (O candidato deverá preencher novamente)</option>
+                        <option value="ENTREVISTA" {% if ficha.status == 'ENTREVISTA' %}selected{% endif %}>Retornar ao Entrevistador (Refazer Parecer da Entrevista)</option>
+                        <option value="P2" {% if ficha.status == 'P2' %}selected{% endif %}>Retornar à P2</option>
+                        <option value="SJD" {% if ficha.status == 'SJD' %}selected{% endif %}>Retornar à SJD</option>
+                        <option value="SUBCMT" {% if ficha.status == 'SUBCMT' %}selected{% endif %}>Retornar ao SubCmt</option>
+                        <option value="CMT" {% if ficha.status == 'CMT' %}selected{% endif %}>Retornar ao Cmt</option>
+                        <option value="FINALIZADO" {% if ficha.status == 'FINALIZADO' %}selected{% endif %}>Concluir / Finalizar forçadamente</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Alterar Oficial Entrevistador para:</label>
+                    <select class="form-select" name="novo_entrevistador_id" required>
+                        {% for e in entrevistadores %}
+                        <option value="{{ e.id }}" {% if e.id == ficha.entrevistador_id %}selected{% endif %}>{{ e.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-danger"><i class="fas fa-check-double me-2"></i> Confirmar Alteração</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

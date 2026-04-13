@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3º BAEP - Sistema de Entrevistas</title>
+    <!-- MDB / Bootstrap CSS for an impressive UI -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #f4f7f6; }
+        .baep-blue { background-color: #0c2b4e; color: white; }
+        .baep-blue-text { color: #0c2b4e; }
+        .navbar { background-color: #0c2b4e; }
+        .container { margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#">
+      <i class="fas fa-shield-alt me-2"></i>3º BAEP - Entrevistas
+    </a>
+    <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNav">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link text-light me-3" href="{{ url_for('dashboard') }}"><i class="fas fa-home me-1"></i> Painel</a>
+        </li>
+        {% if current_user.role == 'ADMIN' %}
+        <li class="nav-item">
+            <a class="nav-link text-light me-3" href="{{ url_for('listar_usuarios') }}"><i class="fas fa-users me-1"></i> Usuários</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <span class="nav-link text-light me-3"><i class="fas fa-user-circle me-1"></i> {{ current_user.nome }} ({{ current_user.role }})</span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-light btn-sm px-3" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+</body>
+</html>

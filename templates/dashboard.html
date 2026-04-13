@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="baep-blue-text"><i class="fas fa-desktop me-2"></i> Painel de Controle</h2>
+        <hr>
+    </div>
+</div>
+
+{% if current_user.role == 'ADMIN' %}
+<div class="row mb-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Nova Ficha de Entrevista</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('gerar_entrevista') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Oficial Entrevistador:</label>
+                        <select class="form-select" name="entrevistador_id" required>
+                            <option value="">Selecione...</option>
+                            {% for e in entrevistadores %}
+                            <option value="{{ e.id }}">{{ e.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-qrcode me-2"></i> Gerar Link e QR Code</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col">
+        <div class="card shadow-sm border-0">
+            <div class="card-header baep-blue">
+                <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i> Fichas em Andamento</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Nº Sequencial</th>
+                                <th>Criado Em</th>
+                                <th>Candidato (Nome/RE)</th>
+                                <th>Status Atual</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ficha in fichas %}
+                            <tr>
+                                <td><strong>{{ ficha.num_sequencial }}</strong></td>
+                                <td>{{ ficha.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    {% if ficha.nome_completo %}
+                                        {{ ficha.nome_completo }} <br><small class="text-muted">RE: {{ ficha.re }}</small>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Aguardando preenchimento</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ficha.status == 'AGUARDANDO_CANDIDATO' %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Candidato</span>
+                                    
+                                    {% elif ficha.status == 'ENTREVISTA' %}
+                                    <span class="badge bg-primary"><i class="fas fa-user-tie"></i> Entrevista</span>
+                                    
+                                    {% elif ficha.status == 'P2' %}
+                                    <span class="badge bg-info text-dark"><i class="fas fa-search"></i> P2</span>
+                                    
+                                    {% elif ficha.status == 'SJD' %}
+                                    <span class="badge" style="background-color: #6f42c1;"><i class="fas fa-gavel"></i> SJD</span>
+                                    
+                                    {% elif ficha.status == 'SUBCMT' %}
+                                    <span class="badge bg-secondary"><i class="fas fa-star-half-alt"></i> SubCmt</span>
+                                    
+                                    {% elif ficha.status == 'CMT' %}
+                                    <span class="badge bg-dark"><i class="fas fa-star"></i> Cmt</span>
+                                    
+                                    {% elif ficha.status == 'FINALIZADO' %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Finalizado</span>
+                                    
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        {% if ficha.status != 'AGUARDANDO_CANDIDATO' %}
+                                            <a href="{{ url_for('analise', ficha_id=ficha.id) }}" class="btn btn-sm btn-outline-primary" data-mdb-ripple-color="dark">
+                                                <i class="fas fa-eye"></i> Analisar
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>Aguardando</button>
+                                        {% endif %}
+                                        
+                                        {% if current_user.role == 'ADMIN' %}
+                                            <a href="{{ url_for('avocar', ficha_id=ficha.id) }}" class="btn btn-sm btn-outline-danger" title="Avocar / Intervir">
+                                                <i class="fas fa-exclamation-triangle"></i> Avocar
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Nenhuma ficha em andamento.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
+    </div>
+</div>
+
+<div class="card shadow border-0 mb-4">
+    <div class="card-header baep-blue text-white">
+        <h5 class="mb-0">Dados do Candidato: {{ ficha.nome_completo }} (RE: {{ ficha.re }})</h5>
+    </div>
+    <div class="card-body bg-light">
+        <div class="row align-items-center mb-3 border-bottom pb-3">
+            {% if ficha.foto_candidato %}
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                <img src="{{ url_for('static', filename='uploads/' + ficha.foto_candidato) }}" alt="Foto Candidato" class="img-fluid rounded shadow-sm" style="max-height: 180px;">
+            </div>
+            {% endif %}
+            <div class="{% if ficha.foto_candidato %}col-md-9{% else %}col-md-12{% endif %}">
+                <div class="row mb-2">
+                    <div class="col-md-4 mb-2"><strong>Posto/Grad:</strong> {{ ficha.posto_grad }}</div>
+                    <div class="col-md-4 mb-2"><strong>OPM:</strong> {{ ficha.opm }}</div>
+                    <div class="col-md-4 mb-2"><strong>Celular:</strong> {{ ficha.celular }}</div>
+                    <div class="col-md-4 mb-2"><strong>Tempo Serv:</strong> {{ ficha.tempo_servico }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12"><strong>Punições Disciplinares:</strong> {{ ficha.disc_punicoes }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-link btn-sm p-0" type="button" data-mdb-toggle="collapse" data-mdb-target="#allDataCollapse">
+                    Ver ficha completa do candidato
+                </button>
+            </div>
+        </div>
+        <div class="collapse mt-3" id="allDataCollapse">
+            <div class="card card-body">
+                <h6>1. Dados Pessoais</h6>
+                <p>Nasc: {{ ficha.data_nasc }} | CPF: {{ ficha.cpf }} | RG: {{ ficha.rg }} | Ingresso: {{ ficha.data_ingresso }} | Endereço: {{ ficha.endereco }}, {{ ficha.bairro }}, {{ ficha.municipio }}</p>
+                <!-- Include more fields if desired -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST">
+<!-- Seção 7 e 8: ENTREVISTADOR -->
+<div class="card shadow border-0 mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">7. Entrevista e Parecer do Entrevistador</h5>
+    </div>
+    <div class="card-body">
+        {% if current_user.role == 'ENTREVISTADOR' and ficha.status == 'ENTREVISTA' %}
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Restrição médica?</label>
+                    <input type="text" class="form-control" name="ent_restricao" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">PAAPM?</label>
+                    <input type="text" class="form-control" name="ent_paapm">
+                </div>
+                <!-- ... add other interview fields briefly ... -->
+                <div class="col-md-12">
+                    <label class="form-label">Observações e Análise (Parecer):</label>
+                    <textarea class="form-control" name="parecer_entrevista_obs" rows="3" required></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Decisão:</label>
+                    <select class="form-select" name="parecer_entrevista_decisao" required>
+                        <option value="Favorável">Favorável</option>
+                        <option value="Desfavorável">Desfavorável</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Parecer</button>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                {% if ficha.parecer_entrevista_decisao %}
+                    <p><strong>Observações:</strong> {{ ficha.parecer_entrevista_obs }}</p>
+                    <p><strong>Parecer:</strong> 
+                        <span class="badge {% if ficha.parecer_entrevista_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %}">{{ ficha.parecer_entrevista_decisao }}</span>
+                    </p>
+                {% else %}
+                    Aguardando preenchimento.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Parecer P2 -->
+<div class="card shadow border-0 mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Parecer Oficial P2</h5>
+    </div>
+    <div class="card-body">
+        {% if current_user.role == 'P2' and ficha.status == 'P2' %}
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Observações acerca do levantamento de dados:</label>
+                    <textarea class="form-control" name="parecer_p2_obs" rows="3" required></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Decisão:</label>
+                    <select class="form-select" name="parecer_p2_decisao" required>
+                        <option value="Favorável">Favorável</option>
+                        <option value="Desfavorável">Desfavorável</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-info"><i class="fas fa-save"></i> Salvar Parecer</button>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                {% if ficha.parecer_p2_decisao %}
+                    <p><strong>Observações:</strong> {{ ficha.parecer_p2_obs }}</p>
+                    <p><strong>Parecer:</strong> <span class="badge {% if ficha.parecer_p2_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %}">{{ ficha.parecer_p2_decisao }}</span></p>
+                {% else %}
+                    Aguardando preenchimento.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Parecer SJD -->
+<div class="card shadow border-0 mb-4">
+    <div class="card-header text-white" style="background-color: #6f42c1;">
+        <h5 class="mb-0">Parecer Oficial SJD</h5>
+    </div>
+    <div class="card-body">
+        {% if current_user.role == 'SJD' and ficha.status == 'SJD' %}
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Observações acerca das consultas realizadas:</label>
+                    <textarea class="form-control" name="parecer_sjd_obs" rows="3" required></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Decisão:</label>
+                    <select class="form-select" name="parecer_sjd_decisao" required>
+                        <option value="Favorável">Favorável</option>
+                        <option value="Desfavorável">Desfavorável</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn text-white" style="background-color: #6f42c1;"><i class="fas fa-save"></i> Salvar Parecer</button>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                {% if ficha.parecer_sjd_decisao %}
+                    <p><strong>Observações:</strong> {{ ficha.parecer_sjd_obs }}</p>
+                    <p><strong>Parecer:</strong> <span class="badge {% if ficha.parecer_sjd_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %}">{{ ficha.parecer_sjd_decisao }}</span></p>
+                {% else %}
+                    Aguardando preenchimento.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Parecer SubCmt -->
+<div class="card shadow border-0 mb-4">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">Parecer SubCmt</h5>
+    </div>
+    <div class="card-body">
+        {% if current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT' %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Com base nas informações, decisão:</label>
+                    <select class="form-select" name="parecer_subcmt_decisao" required>
+                        <option value="Favorável">Favorável</option>
+                        <option value="Desfavorável">Desfavorável</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-secondary"><i class="fas fa-save"></i> Salvar Parecer</button>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                {% if ficha.parecer_subcmt_decisao %}
+                    <p><strong>Parecer:</strong> <span class="badge {% if ficha.parecer_subcmt_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %}">{{ ficha.parecer_subcmt_decisao }}</span></p>
+                {% else %}
+                    Aguardando preenchimento.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Parecer Cmt -->
+<div class="card shadow border-0 mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Decisão Cmt</h5>
+    </div>
+    <div class="card-body">
+        {% if current_user.role == 'CMT' and ficha.status == 'CMT' %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Decisão Final:</label>
+                    <select class="form-select" name="parecer_cmt_decisao" required>
+                        <option value="Providenciar Ofício (Acionar Banco de Dados)">Providenciar Ofício (Acionar Banco de Dados)</option>
+                        <option value="Arquivo (Aguardar momento oportuno)">Arquivo (Aguardar momento oportuno)</option>
+                        <option value="Não é de interesse da Unidade">Não é de interesse da Unidade</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-dark"><i class="fas fa-check"></i> Finalizar</button>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                {% if ficha.parecer_cmt_decisao %}
+                    <p><strong>Decisão:</strong> <b>{{ ficha.parecer_cmt_decisao }}</b></p>
+                {% else %}
+                    Aguardando preenchimento.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</form>
+
+{% endblock %}

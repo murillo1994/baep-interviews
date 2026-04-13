@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-5">
+                <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
+                <h3 class="mb-2 baep-blue-text">Ficha {{ num_seq }} Gerada</h3>
+                <p class="text-muted">Forneça o QR Code ou o link abaixo para o candidato.</p>
+                
+                <div class="my-4 p-3 bg-light rounded d-inline-block">
+                    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid" style="max-width: 250px;">
+                </div>
+                
+                <div class="input-group mb-4 w-75 mx-auto">
+                    <input type="text" class="form-control" id="linkCandidato" value="{{ link }}" readonly>
+                    <button class="btn btn-outline-primary" type="button" onclick="navigator.clipboard.writeText('{{ link }}'); alert('Copiado!');">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                </div>
+                
+                <a href="{{ url_for('dashboard') }}" class="btn baep-blue text-white"><i class="fas fa-arrow-left me-1"></i> Voltar ao Painel</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

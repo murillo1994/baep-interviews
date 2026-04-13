@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-lg border-0 mb-5">
+    <div class="card-header baep-blue text-white py-3">
+        <h4 class="mb-0 text-center"><i class="fas fa-file-signature me-2"></i> Ficha de Entrevista - 3º BAEP</h4>
+    </div>
+    <div class="card-body p-4 p-md-5 bg-light">
+        <form method="POST">
+            
+            <!-- 1. Dados Pessoais -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2">1. Dados Pessoais</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" class="form-control" name="nome_completo" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Posto/Graduação</label>
+                    <input type="text" class="form-control" name="posto_grad" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">RE</label>
+                    <input type="text" class="form-control" name="re" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Data de Nascimento</label>
+                    <input type="date" class="form-control" name="data_nasc" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">OPM</label>
+                    <input type="text" class="form-control" name="opm" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">CPF</label>
+                    <input type="text" class="form-control" name="cpf" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">RG</label>
+                    <input type="text" class="form-control" name="rg" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Data de Ingresso na PM</label>
+                    <input type="date" class="form-control" name="data_ingresso" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tempo de Serviço</label>
+                    <input type="text" class="form-control" name="tempo_servico" placeholder="Ex: 5 anos, 2 meses" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tempo Averbado / A Averbar</label>
+                    <input type="text" class="form-control" name="tempo_averbado" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Endereço Residencial</label>
+                    <input type="text" class="form-control" name="endereco" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Bairro</label>
+                    <input type="text" class="form-control" name="bairro" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Município</label>
+                    <input type="text" class="form-control" name="municipio" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Celular</label>
+                    <input type="tel" class="form-control" name="celular" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email Funcional</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado Civil</label>
+                    <input type="text" class="form-control" name="estado_civil" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cônjuge é PM/Func. Pub?</label>
+                    <input type="text" class="form-control" name="conjuge_pm" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Art. 130 CESP?</label>
+                    <select class="form-select" name="art_130">
+                        <option value="Sim">Sim</option><option value="Não">Não</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Possui Filhos?</label>
+                    <select class="form-select" name="possui_filhos">
+                        <option value="Sim">Sim</option><option value="Não">Não</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Quantos?</label>
+                    <input type="number" class="form-control" name="qtd_filhos">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Idade(s)</label>
+                    <input type="text" class="form-control" name="idade_filhos">
+                </div>
+            </div>
+
+            <!-- 2. Disciplina -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 mt-4">2. Disciplina</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <label class="form-label">Responde ou já respondeu IPM, Sindicância, PD? Especificar qual(is) e motivo(s):</label>
+                    <textarea class="form-control" name="disc_ipm" rows="2" required></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Responde ou já respondeu PAD, CD, CJ como acusado? Especificar qual(is) e motivo(s):</label>
+                    <textarea class="form-control" name="disc_pad" rows="2" required></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Possui punição(ões)? Especificar quantidade e motivo(s):</label>
+                    <textarea class="form-control" name="disc_punicoes" rows="2" required></textarea>
+                </div>
+            </div>
+
+            <!-- 3. Habilitações -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 mt-4">3. Habilitações</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Habilitado em armamento portátil e EMPO? Quais?</label>
+                    <input type="text" class="form-control" name="hab_armamento" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cat. CNH</label>
+                    <input type="text" class="form-control" name="hab_cnh" placeholder="Ex: AB, AD" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Autorização SAT</label>
+                    <input type="text" class="form-control" name="hab_sat" placeholder="A, B, C...">
+                </div>
+            </div>
+
+            <!-- 4. Ativ Profissional -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 mt-4">4. Atividade Profissional</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Atual função na OPM?</label>
+                    <input type="text" class="form-control" name="prof_funcao_atual" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Funções exercidas na PM?</label>
+                    <textarea class="form-control" name="prof_funcoes_ant" rows="2" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tempo na ativ operacional (Ost, FT, BAEP, Choque):</label>
+                    <textarea class="form-control" name="prof_tempo_operacional" rows="2" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Unidades PM que já serviu?</label>
+                    <textarea class="form-control" name="prof_unidades" rows="2" required></textarea>
+                </div>
+            </div>
+
+            <!-- 5. Formações -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 mt-4">5. Formação e Cursos</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Cursos/Estágios na área Op?</label>
+                    <textarea class="form-control" name="form_cursos_op" rows="2" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Artes marciais?</label>
+                    <textarea class="form-control" name="form_artes_marciais" rows="2"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Cursos técnicos?</label>
+                    <textarea class="form-control" name="form_outros" rows="2"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Forças Armadas?</label>
+                    <textarea class="form-control" name="form_forcas_armadas" rows="2"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Expertise área Adm?</label>
+                    <input type="text" class="form-control" name="form_expertise_adm">
+                </div>
+            </div>
+
+            <!-- 6. EAP -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 mt-4">6. EAP / Inspeção Anual</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label">Inspeção Anual Saúde</label>
+                    <input type="text" class="form-control" name="eap_saude" placeholder="Apto/Inapto (motivo)" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">TAF (Pontos)</label>
+                    <input type="text" class="form-control" name="eap_taf" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Teste Tiro (Pontos)</label>
+                    <input type="text" class="form-control" name="eap_tiro" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">EAP</label>
+                    <input type="text" class="form-control" name="eap_eap" placeholder="Apto/Inapto" required>
+                </div>
+            </div>
+
+                    <hr class="my-4">
+            
+            <!-- 7. Foto do Candidato -->
+            <h5 class="baep-blue-text mb-3 border-bottom pb-2 text-center"><i class="fas fa-camera"></i> 7. Foto do Candidato</h5>
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-md-12">
+                    <p class="text-muted">Por favor, habilite a câmera e tire uma foto sua (rosto visível) para anexar à ficha.</p>
+                </div>
+                <div class="col-md-6 mx-auto">
+                    <div id="camera-container" class="mb-3" style="display:none;">
+                        <video id="video-preview" width="100%" autoplay playsinline style="border-radius: 8px; border: 2px solid #ccc;"></video>
+                        <button type="button" class="btn btn-warning mt-2 w-100 fw-bold" id="btn-capturar"><i class="fas fa-camera"></i> Capturar Foto</button>
+                    </div>
+                    <div id="photo-container" style="display:none;">
+                        <img id="photo-preview" src="" width="100%" style="border-radius: 8px; border: 2px solid #28a745;">
+                        <button type="button" class="btn btn-danger mt-2 w-100 fw-bold" id="btn-refazer"><i class="fas fa-redo"></i> Tirar Novamente</button>
+                    </div>
+                    <button type="button" class="btn btn-info mt-2 w-100 text-white fw-bold" id="btn-iniciar-camera"><i class="fas fa-video"></i> Habilitar Câmera</button>
+                    <input type="hidden" name="foto_candidato" id="foto_candidato" required>
+                </div>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+
+            <hr class="my-4">
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg" style="background-color: #0c2b4e;"><i class="fas fa-paper-plane me-2"></i> Enviar Ficha</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('video-preview');
+        const canvas = document.getElementById('canvas');
+        const photoPreview = document.getElementById('photo-preview');
+        const hiddenInput = document.getElementById('foto_candidato');
+        
+        const btnIniciar = document.getElementById('btn-iniciar-camera');
+        const btnCapturar = document.getElementById('btn-capturar');
+        const btnRefazer = document.getElementById('btn-refazer');
+        
+        const cameraContainer = document.getElementById('camera-container');
+        const photoContainer = document.getElementById('photo-container');
+        
+        let stream = null;
+
+        btnIniciar.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                btnIniciar.style.display = 'none';
+                cameraContainer.style.display = 'block';
+            } catch (err) {
+                alert("Não foi possível acessar a câmera. Verifique as permissões de acesso: " + err);
+            }
+        });
+
+        btnCapturar.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            photoPreview.src = dataUrl;
+            hiddenInput.value = dataUrl;
+            
+            cameraContainer.style.display = 'none';
+            photoContainer.style.display = 'block';
+            
+            // Stop stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        btnRefazer.addEventListener('click', async () => {
+            photoContainer.style.display = 'none';
+            hiddenInput.value = "";
+            
+            // Restart camera
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                cameraContainer.style.display = 'block';
+            } catch (err) {
+                alert("Erro ao re-iniciar a câmera: " + err);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

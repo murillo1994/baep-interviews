@@ -54,8 +54,22 @@
                         </thead>
                         <tbody>
                             {% for ficha in fichas %}
-                            <tr>
-                                <td><strong>{{ ficha.num_sequencial }}</strong></td>
+                            {% set is_pending_me = false %}
+                            {% if current_user.role != 'ADMIN' %}
+                                {% if ficha.status == 'ENTREVISTA' and current_user.id == ficha.entrevistador_id %}
+                                    {% set is_pending_me = true %}
+                                {% elif ficha.status == current_user.role %}
+                                    {% set is_pending_me = true %}
+                                {% endif %}
+                            {% endif %}
+                            
+                            <tr class="{% if is_pending_me %}table-warning border-warning{% endif %}">
+                                <td>
+                                    <strong>{{ ficha.num_sequencial }}</strong>
+                                    {% if is_pending_me %}
+                                    <div class="mt-1"><span class="badge bg-danger shadow-sm"><i class="fas fa-exclamation-circle"></i> SUA AÇÃO PENDENTE</span></div>
+                                    {% endif %}
+                                </td>
                                 <td>{{ ficha.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
                                 <td>
                                     {% if ficha.nome_completo %}
@@ -85,8 +99,28 @@
                                     
                                     {% elif ficha.status == 'FINALIZADO' %}
                                     <span class="badge bg-success"><i class="fas fa-check-circle"></i> Finalizado</span>
-                                    
                                     {% endif %}
+                                    
+                                    <div class="mt-1">
+                                    <small class="text-muted fw-bold">
+                                        <i class="fas fa-hand-holding me-1"></i> Com: 
+                                        {% if ficha.status == 'AGUARDANDO_CANDIDATO' %}
+                                            Candidato
+                                        {% elif ficha.status == 'ENTREVISTA' %}
+                                            {{ ficha.entrevistador.nome if ficha.entrevistador else 'Indefinido' }}
+                                        {% elif ficha.status == 'P2' %}
+                                            Oficiais P2
+                                        {% elif ficha.status == 'SJD' %}
+                                            Oficiais SJD
+                                        {% elif ficha.status == 'SUBCMT' %}
+                                            Subcmt
+                                        {% elif ficha.status == 'CMT' %}
+                                            Chefe / Cmt
+                                        {% elif ficha.status == 'FINALIZADO' %}
+                                            Arquivo
+                                        {% endif %}
+                                    </small>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1">

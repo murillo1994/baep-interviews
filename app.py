@@ -55,7 +55,8 @@ def send_notification_email(to_email, subject, body):
 
     try:
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls(context=context)
             server.login(sender_email, app_password)
             server.send_message(msg)
     except Exception as e:
@@ -218,8 +219,9 @@ def preencher_candidato(uuid):
         db.session.commit()
         
         # Enviar email para o entrevistador assignado
+        link = url_for('analise', ficha_id=ficha.id, _external=True)
         subj = f"Nova Ficha de Entrevista: {ficha.nome_completo}"
-        body = f"O candidato {ficha.nome_completo} preencheu a ficha {ficha.num_sequencial}.\nAguardando seu parecer na plataforma."
+        body = f"O candidato {ficha.nome_completo} preencheu a ficha {ficha.num_sequencial}.\nAguardando seu parecer na plataforma.\n\nAcesse a ficha para analisar: {link}"
         if ficha.entrevistador:
             send_notification_email(ficha.entrevistador.email, subj, body)
             
@@ -253,27 +255,32 @@ def analise(ficha_id):
             ficha.parecer_entrevista_decisao = request.form.get('parecer_entrevista_decisao')
             ficha.parecer_entrevista_data = datetime.utcnow()
             ficha.status = 'P2'
-            notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.")
+            db.session.commit() # commit needed if we want the ID, but it already has an ID. Just to be safe no need to commit here, we just need URL.
+            link = url_for('analise', ficha_id=ficha.id, _external=True)
+            notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.\n\nAcesse: {link}")
         
         elif current_user.role == 'P2' and ficha.status == 'P2':
             ficha.parecer_p2_obs = request.form.get('parecer_p2_obs')
             ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
             ficha.parecer_p2_data = datetime.utcnow()
             ficha.status = 'SJD'
-            notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.")
+            link = url_for('analise', ficha_id=ficha.id, _external=True)
+            notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.\n\nAcesse: {link}")
             
         elif current_user.role == 'SJD' and ficha.status == 'SJD':
             ficha.parecer_sjd_obs = request.form.get('parecer_sjd_obs')
             ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
             ficha.parecer_sjd_data = datetime.utcnow()
             ficha.status = 'SUBCMT'
-            notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.")
+            link = url_for('analise', ficha_id=ficha.id, _external=True)
+            notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.\n\nAcesse: {link}")
             
         elif current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT':
             ficha.parecer_subcmt_decisao = request.form.get('parecer_subcmt_decisao')
             ficha.parecer_subcmt_data = datetime.utcnow()
             ficha.status = 'CMT'
-            notificar_usuarios_por_role('CMT', f"Ação Pendente (CMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de Comando.")
+            link = url_for('analise', ficha_id=ficha.id, _external=True)
+            notificar_usuarios_por_role('CMT', f"Ação Pendente (CMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de Comando.\n\nAcesse: {link}")
 
         elif current_user.role == 'CMT' and ficha.status == 'CMT':
             ficha.parecer_cmt_decisao = request.form.get('parecer_cmt_decisao')

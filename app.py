@@ -3,10 +3,14 @@ import uuid
 import qrcode
 import io
 import base64
+import smtplib
+import ssl
+from email.message import EmailMessage
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text, or_
 
 from models import db, User, Ficha
 
@@ -32,6 +36,30 @@ def get_next_num_sequencial():
         last_num = int(last_ficha.num_sequencial.split('-')[1])
         return f"{year}-{last_num + 1:03d}"
     return f"{year}-001"
+
+def notificar_usuarios_por_role(role, subject, body):
+    users = User.query.filter_by(role=role).all()
+    for u in users:
+        send_notification_email(u.email, subject, body)
+
+def send_notification_email(to_email, subject, body):
+    if not to_email: return
+    sender_email = "p3baep3@gmail.com"
+    app_password = "vhdp rcdt hzji hrky"
+
+    msg = EmailMessage()
+    msg.set_content(body)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = to_email
+
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, app_password)
+            server.send_message(msg)
+    except Exception as e:
+        print(f"Erro ao enviar email para {to_email}: {e}")
 
 @app.route('/')
 def index():
@@ -64,18 +92,19 @@ def dashboard():
     fichas = []
     if current_user.role == 'ADMIN':
         fichas = Ficha.query.all()
-    elif current_user.role == 'ENTREVISTADOR':
-        fichas = Ficha.query.filter_by(entrevistador_id=current_user.id).all()
     elif current_user.role == 'P2':
-        fichas = Ficha.query.filter(Ficha.status.in_(['P2', 'SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])).all()
+        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['P2', 'SJD', 'SUBCMT', 'CMT', 'FINALIZADO']))).all()
     elif current_user.role == 'SJD':
-        fichas = Ficha.query.filter(Ficha.status.in_(['SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])).all()
+        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SJD', 'SUBCMT', 'CMT', 'FINALIZADO']))).all()
     elif current_user.role == 'SUBCMT':
-        fichas = Ficha.query.filter(Ficha.status.in_(['SUBCMT', 'CMT', 'FINALIZADO'])).all()
+        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SUBCMT', 'CMT', 'FINALIZADO']))).all()
     elif current_user.role == 'CMT':
-        fichas = Ficha.query.filter(Ficha.status.in_(['CMT', 'FINALIZADO'])).all()
+        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['CMT', 'FINALIZADO']))).all()
+    else:
+        fichas = Ficha.query.filter_by(entrevistador_id=current_user.id).all()
     
-    entrevistadores = User.query.filter_by(role='ENTREVISTADOR').all()
+    # Todos os usuários podem realizar entrevistas agora
+    entrevistadores = User.query.filter(User.role != 'ADMIN').all()
     return render_template('dashboard.html', fichas=fichas, entrevistadores=entrevistadores)
 
 @app.route('/p1/gerar', methods=['POST'])
@@ -187,6 +216,13 @@ def preencher_candidato(uuid):
 
         ficha.status = 'ENTREVISTA'
         db.session.commit()
+        
+        # Enviar email para o entrevistador assignado
+        subj = f"Nova Ficha de Entrevista: {ficha.nome_completo}"
+        body = f"O candidato {ficha.nome_completo} preencheu a ficha {ficha.num_sequencial}.\nAguardando seu parecer na plataforma."
+        if ficha.entrevistador:
+            send_notification_email(ficha.entrevistador.email, subj, body)
+            
         return render_template('mensagem.html', msg="Dados enviados com sucesso! Aguarde a convocação para entrevista no 3º BAEP.", type="success")
 
     return render_template('ficha_candidato.html', ficha=ficha)
@@ -198,7 +234,7 @@ def analise(ficha_id):
     ficha = Ficha.query.get_or_404(ficha_id)
     
     if request.method == 'POST':
-        if current_user.role == 'ENTREVISTADOR' and ficha.status == 'ENTREVISTA':
+        if current_user.id == ficha.entrevistador_id and ficha.status == 'ENTREVISTA':
             ficha.ent_restricao = request.form.get('ent_restricao')
             ficha.ent_paapm = request.form.get('ent_paapm')
             ficha.ent_limitacao = request.form.get('ent_limitacao')
@@ -217,23 +253,27 @@ def analise(ficha_id):
             ficha.parecer_entrevista_decisao = request.form.get('parecer_entrevista_decisao')
             ficha.parecer_entrevista_data = datetime.utcnow()
             ficha.status = 'P2'
+            notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.")
         
         elif current_user.role == 'P2' and ficha.status == 'P2':
             ficha.parecer_p2_obs = request.form.get('parecer_p2_obs')
             ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
             ficha.parecer_p2_data = datetime.utcnow()
             ficha.status = 'SJD'
+            notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.")
             
         elif current_user.role == 'SJD' and ficha.status == 'SJD':
             ficha.parecer_sjd_obs = request.form.get('parecer_sjd_obs')
             ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
             ficha.parecer_sjd_data = datetime.utcnow()
             ficha.status = 'SUBCMT'
+            notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.")
             
         elif current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT':
             ficha.parecer_subcmt_decisao = request.form.get('parecer_subcmt_decisao')
             ficha.parecer_subcmt_data = datetime.utcnow()
             ficha.status = 'CMT'
+            notificar_usuarios_por_role('CMT', f"Ação Pendente (CMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de Comando.")
 
         elif current_user.role == 'CMT' and ficha.status == 'CMT':
             ficha.parecer_cmt_decisao = request.form.get('parecer_cmt_decisao')
@@ -254,7 +294,7 @@ def avocar(ficha_id):
         return redirect(url_for('dashboard'))
         
     ficha = Ficha.query.get_or_404(ficha_id)
-    entrevistadores = User.query.filter_by(role='ENTREVISTADOR').all()
+    entrevistadores = User.query.filter(User.role != 'ADMIN').all()
     
     if request.method == 'POST':
         novo_status = request.form.get('novo_status')

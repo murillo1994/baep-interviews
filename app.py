@@ -318,6 +318,18 @@ def avocar(ficha_id):
             ficha.entrevistador_id = novo_entrevistador_id
             
         db.session.commit()
+        
+        # Enviar email para notificar do recuo/avanço da ficha
+        link = url_for('analise', ficha_id=ficha.id, _external=True)
+        if novo_status == 'ENTREVISTA' and ficha.entrevistador:
+            subj = f"Ficha Avocada: {ficha.nome_completo}"
+            body = f"A ficha {ficha.num_sequencial} de {ficha.nome_completo} foi avocada pela administração e retornou para o parecer de Entrevista.\n\nAcesse para analisar: {link}"
+            send_notification_email(ficha.entrevistador.email, subj, body)
+        elif novo_status in ['P2', 'SJD', 'SUBCMT', 'CMT']:
+            subj = f"Ficha Avocada ({novo_status}): {ficha.nome_completo}"
+            body = f"A ficha {ficha.num_sequencial} de {ficha.nome_completo} foi avocada pela administração e enviada para o seu nível ({novo_status}).\n\nAcesse para analisar: {link}"
+            notificar_usuarios_por_role(novo_status, subj, body)
+
         flash(f'Ficha {ficha.num_sequencial} avocada e atualizada com sucesso!', 'success')
         return redirect(url_for('dashboard'))
         

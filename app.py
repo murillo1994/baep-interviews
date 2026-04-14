@@ -11,6 +11,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, or_
+from xhtml2pdf import pisa
 
 from models import db, User, Ficha
 
@@ -62,6 +63,15 @@ def send_notification_email(to_email, subject, body):
     except Exception as e:
         print(f"Erro ao enviar email para {to_email}: {e}")
 
+def render_pdf(template_name, **kwargs):
+    html = render_template(template_name, datetime=datetime, **kwargs)
+    result = io.BytesIO()
+    # xhtml2pdf likes a bit more help with paths if images are relative, but for now we'll keep it simple
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -90,23 +100,33 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    fichas = []
+    search = request.args.get('search', '').strip()
+    
     if current_user.role == 'ADMIN':
-        fichas = Ficha.query.all()
+        query = Ficha.query
     elif current_user.role == 'P2':
-        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['P2', 'SJD', 'SUBCMT', 'CMT', 'FINALIZADO']))).all()
+        query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['P2', 'SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])))
     elif current_user.role == 'SJD':
-        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SJD', 'SUBCMT', 'CMT', 'FINALIZADO']))).all()
+        query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])))
     elif current_user.role == 'SUBCMT':
-        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SUBCMT', 'CMT', 'FINALIZADO']))).all()
+        query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SUBCMT', 'CMT', 'FINALIZADO'])))
     elif current_user.role == 'CMT':
-        fichas = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['CMT', 'FINALIZADO']))).all()
+        query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['CMT', 'FINALIZADO'])))
     else:
-        fichas = Ficha.query.filter_by(entrevistador_id=current_user.id).all()
+        query = Ficha.query.filter_by(entrevistador_id=current_user.id)
+    
+    if search:
+        query = query.filter(or_(
+            Ficha.nome_completo.ilike(f'%{search}%'),
+            Ficha.re.ilike(f'%{search}%'),
+            Ficha.num_sequencial.ilike(f'%{search}%')
+        ))
+        
+    fichas = query.order_by(Ficha.data_criacao.desc()).all()
     
     # Todos os usuários podem realizar entrevistas agora
     entrevistadores = User.query.filter(User.role != 'ADMIN').all()
-    return render_template('dashboard.html', fichas=fichas, entrevistadores=entrevistadores)
+    return render_template('dashboard.html', fichas=fichas, entrevistadores=entrevistadores, search=search)
 
 @app.route('/p1/gerar', methods=['POST'])
 @login_required
@@ -427,6 +447,69 @@ def excluir_usuario(id):
         flash('Usuário excluído com sucesso.', 'success')
         
     return redirect(url_for('listar_usuarios'))
+
+from flask import send_file
+
+@app.route('/exportar/pdf/<int:ficha_id>')
+@login_required
+def exportar_pdf(ficha_id):
+    ficha = Ficha.query.get_or_404(ficha_id)
+    # Buscamos a foto se existir para passar o path absoluto para o pisa
+    foto_path = None
+    if ficha.foto_candidato:
+        foto_path = os.path.join(app.root_path, 'static', 'uploads', ficha.foto_candidato)
+
+    pdf_content = render_pdf('pdf_ficha.html', ficha=ficha, foto_path=foto_path)
+    
+    if pdf_content:
+        return send_file(
+            io.BytesIO(pdf_content),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"Ficha_{ficha.re}_{ficha.num_sequencial}.pdf"
+        )
+    flash("Erro ao gerar PDF", "danger")
+    return redirect(url_for('dashboard'))
+
+@app.route('/exportar/pdf/todos')
+@login_required
+def exportar_todos_pdf():
+    if current_user.role != 'ADMIN':
+        flash("Acesso negado.", "danger")
+        return redirect(url_for('dashboard'))
+        
+    fichas = Ficha.query.filter(Ficha.status != 'AGUARDANDO_CANDIDATO').all()
+    
+    if not fichas:
+        flash("Nenhuma ficha disponível para exportar.", "warning")
+        return redirect(url_for('dashboard'))
+
+    html_combined = ""
+    for f in fichas:
+        foto_path = None
+        if f.foto_candidato:
+            foto_path = os.path.join(app.root_path, 'static', 'uploads', f.foto_candidato)
+        html_combined += render_template('pdf_ficha.html', ficha=f, foto_path=foto_path, datetime=datetime)
+        html_combined += '<div style="pdf-next-page: always;"></div>'
+        
+    pdf_content = render_pdf_raw(html_combined)
+    
+    if pdf_content:
+        return send_file(
+            io.BytesIO(pdf_content),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"Relatorio_Geral_Fichas_{datetime.now().strftime('%Y%m%d')}.pdf"
+        )
+    flash("Erro ao gerar PDF combinado", "danger")
+    return redirect(url_for('dashboard'))
+
+def render_pdf_raw(html):
+    result = io.BytesIO()
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
 
 from sqlalchemy import text
 

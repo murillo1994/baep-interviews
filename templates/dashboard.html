@@ -8,6 +8,28 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="GET" action="{{ url_for('dashboard') }}" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" name="search" class="form-control border-start-0" placeholder="Pesquisar por Nome, RE ou Nº Sequencial..." value="{{ search or '' }}">
+                <button type="submit" class="btn baep-blue text-white">Pesquisar</button>
+            </div>
+            {% if search %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if current_user.role == 'ADMIN' %}
+            <a href="{{ url_for('exportar_todos_pdf') }}" class="btn btn-danger shadow-sm">
+                <i class="fas fa-file-pdf me-2"></i> Exportar Todas (PDF)
+            </a>
+        {% endif %}
+    </div>
+</div>
+
 {% if current_user.role == 'ADMIN' %}
 <div class="row mb-5">
     <div class="col-md-6">
@@ -135,6 +157,12 @@
                                         {% if current_user.role == 'ADMIN' %}
                                             <a href="{{ url_for('avocar', ficha_id=ficha.id) }}" class="btn btn-sm btn-outline-danger" title="Avocar / Intervir">
                                                 <i class="fas fa-exclamation-triangle"></i> Avocar
+                                            </a>
+                                        {% endif %}
+
+                                        {% if ficha.status != 'AGUARDANDO_CANDIDATO' %}
+                                            <a href="{{ url_for('exportar_pdf', ficha_id=ficha.id) }}" class="btn btn-sm btn-outline-danger" title="Exportar PDF">
+                                                <i class="fas fa-file-pdf"></i> PDF
                                             </a>
                                         {% endif %}
                                     </div>

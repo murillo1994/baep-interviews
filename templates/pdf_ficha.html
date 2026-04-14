@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha de Entrevista - BAEP</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #1a237e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #1a237e;
+            font-size: 18pt;
+        }
+        .header h2 {
+            margin: 5px 0 0 0;
+            font-size: 12pt;
+            color: #555;
+        }
+        .section-title {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            font-weight: bold;
+            color: #1a237e;
+            border-left: 4px solid #1a237e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 4px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f9f9f9;
+            width: 30%;
+            font-weight: bold;
+        }
+        .foto-container {
+            float: right;
+            width: 120px;
+            height: 150px;
+            border: 1px solid #ccc;
+            text-align: center;
+            margin-top: -10px;
+        }
+        .foto-container img {
+            max-width: 110px;
+            max-height: 140px;
+            margin-top: 5px;
+        }
+        .info-row {
+            clear: both;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 8pt;
+            color: #777;
+        }
+        .signature-box {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            width: 250px;
+            text-align: center;
+            display: inline-block;
+            margin-right: 50px;
+        }
+        .parecer-status {
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .FAVORÁVEL { color: green; }
+        .DESFAVORÁVEL { color: red; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>3º Batalhão de Ações Especiais de Polícia</h1>
+        <h2>Ficha de Entrevista e Seleção - Nº {{ ficha.num_sequencial }}</h2>
+    </div>
+
+    {% if foto_path %}
+    <div class="foto-container">
+        <img src="{{ foto_path }}">
+    </div>
+    {% endif %}
+
+    <div class="section-title">1. Dados Pessoais</div>
+    <table>
+        <tr><th>Nome Completo</th><td>{{ ficha.nome_completo or '-' }}</td></tr>
+        <tr><th>Posto/Graduação</th><td>{{ ficha.posto_grad or '-' }}</td></tr>
+        <tr><th>RE</th><td>{{ ficha.re or '-' }}</td></tr>
+        <tr><th>CPF</th><td>{{ ficha.cpf or '-' }}</td></tr>
+        <tr><th>Data de Nascimento</th><td>{{ ficha.data_nasc or '-' }}</td></tr>
+        <tr><th>Data de Ingresso</th><td>{{ ficha.data_ingresso or '-' }}</td></tr>
+        <tr><th>OPM Atual</th><td>{{ ficha.opm or '-' }}</td></tr>
+        <tr><th>Email</th><td>{{ ficha.email or '-' }}</td></tr>
+        <tr><th>Celular</th><td>{{ ficha.celular or '-' }}</td></tr>
+    </table>
+
+    <div class="section-title">2. Disciplina e Habilitações</div>
+    <table>
+        <tr><th>IPM/Sindicância</th><td>{{ ficha.disc_ipm or 'Nada consta' }}</td></tr>
+        <tr><th>PAD/CD</th><td>{{ ficha.disc_pad or 'Nada consta' }}</td></tr>
+        <tr><th>Punições</th><td>{{ ficha.disc_punicoes or 'Nada consta' }}</td></tr>
+        <tr><th>CNH</th><td>{{ ficha.hab_cnh or '-' }}</td></tr>
+        <tr><th>SAT</th><td>{{ ficha.hab_sat or '-' }}</td></tr>
+    </table>
+
+    <div class="section-title">3. Pareceres e Decisões</div>
+    <table>
+        <tr>
+            <th>Entrevistador ({{ ficha.entrevistador.nome if ficha.entrevistador else '-' }})</th>
+            <td>
+                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_entrevista_decisao }}">{{ ficha.parecer_entrevista_decisao or 'Pendente' }}</span><br>
+                <strong>Obs:</strong> {{ ficha.parecer_entrevista_obs or 'Sem observações' }}
+            </td>
+        </tr>
+        <tr>
+            <th>P2 (Inteligência)</th>
+            <td>
+                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_p2_decisao }}">{{ ficha.parecer_p2_decisao or 'Pendente' }}</span><br>
+                <strong>Obs:</strong> {{ ficha.parecer_p2_obs or 'Sem observações' }}
+            </td>
+        </tr>
+        <tr>
+            <th>SJD (Justiça e Disciplina)</th>
+            <td>
+                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_sjd_decisao }}">{{ ficha.parecer_sjd_decisao or 'Pendente' }}</span><br>
+                <strong>Obs:</strong> {{ ficha.parecer_sjd_obs or 'Sem observações' }}
+            </td>
+        </tr>
+        <tr>
+            <th>Subcomandante</th>
+            <td>
+                <strong>Decisão:</strong> {{ ficha.parecer_subcmt_decisao or 'Pendente' }}
+            </td>
+        </tr>
+        <tr>
+            <th>Comandante (Final)</th>
+            <td>
+                <strong>Decisão Final:</strong> {{ ficha.parecer_cmt_decisao or 'Pendente' }}
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 50px; text-align: center;">
+        <div class="signature-box">
+            Assinatura do Entrevistador
+        </div>
+        <div class="signature-box">
+            Visto do Candidato
+        </div>
+    </div>
+
+    <div class="footer">
+        Documento gerado eletronicamente em {{ datetime.now().strftime('%d/%m/%Y %H:%M:%S') }}
+    </div>
+</body>
+</html>

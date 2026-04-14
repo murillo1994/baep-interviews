@@ -4,3 +4,4 @@ Flask-Login==0.6.3
 qrcode[pil]==7.4.2
 Pillow
 python-dotenv==1.0.0
+xhtml2pdf==0.2.11

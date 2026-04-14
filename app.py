@@ -352,16 +352,21 @@ def avocar(ficha_id):
             
         db.session.commit()
         
+        # Recarrega o objeto para garantir que as relações (entrevistador) estejam atualizadas
+        db.session.refresh(ficha)
+
         # Enviar email para notificar do recuo/avanço da ficha
         link = url_for('analise', ficha_id=ficha.id, _external=True)
-        if novo_status == 'ENTREVISTA' and ficha.entrevistador:
-            subj = f"Ficha Avocada: {ficha.nome_completo}"
-            body = f"A ficha {ficha.num_sequencial} de {ficha.nome_completo} foi avocada pela administração e retornou para o parecer de Entrevista.\n\nAcesse para analisar: {link}"
+        
+        if ficha.status == 'ENTREVISTA' and ficha.entrevistador:
+            subj = f"AÇÃO REQUERIDA: Ficha de Entrevista {ficha.num_sequencial}"
+            body = f"A ficha de {ficha.nome_completo or 'Candidato'} foi movida/designada para você.\n\nFase Atual: ENTREVISTA\n\nAcesse para realizar o parecer: {link}"
             send_notification_email(ficha.entrevistador.email, subj, body)
-        elif novo_status in ['P2', 'SJD', 'SUBCMT', 'CMT']:
-            subj = f"Ficha Avocada ({novo_status}): {ficha.nome_completo}"
-            body = f"A ficha {ficha.num_sequencial} de {ficha.nome_completo} foi avocada pela administração e enviada para o seu nível ({novo_status}).\n\nAcesse para analisar: {link}"
-            notificar_usuarios_por_role(novo_status, subj, body)
+            
+        elif ficha.status in ['P2', 'SJD', 'SUBCMT', 'CMT']:
+            subj = f"Ficha Avocada ({ficha.status}): {ficha.nome_completo}"
+            body = f"A ficha {ficha.num_sequencial} de {ficha.nome_completo} foi avocada pela administração e enviada para o seu nível ({ficha.status}).\n\nAcesse para analisar: {link}"
+            notificar_usuarios_por_role(ficha.status, subj, body)
 
         flash(f'Ficha {ficha.num_sequencial} avocada e atualizada com sucesso!', 'success')
         return redirect(url_for('dashboard'))

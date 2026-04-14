@@ -17,7 +17,9 @@ from models import db, User, Ficha
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'chave_secreta_baep_xyz123'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///baep.db'
+# Garantir caminho absoluto para o SQLite funcionar em servidores (PythonAnywhere)
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance', 'baep.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -530,6 +532,8 @@ def init_db():
             db.session.add(User(username='cmt', password=generate_password_hash('senha123'), nome='Comandante', email='cmt@baep.com', role='CMT'))
             db.session.commit()
 
+# Inicializa o banco ao carregar (importante para servidores WSGI)
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)

@@ -3,9 +3,9 @@ import uuid
 import qrcode
 import io
 import base64
-import smtplib
-import ssl
 from email.message import EmailMessage
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -58,23 +58,25 @@ def notificar_usuarios_por_role(role, subject, body):
 
 def send_notification_email(to_email, subject, body):
     if not to_email: return
-    sender_email = "p3baep3@gmail.com"
-    app_password = "vhdp rcdt hzji hrky"
+    
+    # IMPORTANTE: Coloque sua API KEY aqui ou configure como variável de ambiente
+    # Recomendado configurar como variável no painel do PythonAnywhere
+    sg_api_key = os.environ.get('SENDGRID_API_KEY', 'SUA_API_KEY_AQUI')
+    sender_email = "p3baep3@gmail.com" # Este email precisa estar verificado no SendGrid (Single Sender Verification)
 
-    msg = EmailMessage()
-    msg.set_content(body)
-    msg['Subject'] = subject
-    msg['From'] = sender_email
-    msg['To'] = to_email
+    message = Mail(
+        from_email=sender_email,
+        to_emails=to_email,
+        subject=subject,
+        plain_text_content=body
+    )
 
     try:
-        context = ssl.create_default_context()
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls(context=context)
-            server.login(sender_email, app_password)
-            server.send_message(msg)
+        sg = SendGridAPIClient(sg_api_key)
+        response = sg.send(message)
+        print(f"Email enviado para {to_email} (Status {response.status_code})")
     except Exception as e:
-        print(f"Erro ao enviar email para {to_email}: {e}")
+        print(f"Erro ao enviar email via SendGrid: {e}")
 
 def render_pdf(template_name, **kwargs):
     html = render_template(template_name, datetime=datetime, **kwargs)

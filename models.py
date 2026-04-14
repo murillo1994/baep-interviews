@@ -1,6 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+import pytz
 from datetime import datetime
+
+def get_now_br():
+    return datetime.now(pytz.timezone('America/Sao_Paulo')).replace(tzinfo=None)
 
 db = SQLAlchemy()
 
@@ -17,7 +19,7 @@ class Ficha(db.Model):
     uuid_link = db.Column(db.String(100), unique=True, nullable=False)
     num_sequencial = db.Column(db.String(20), unique=True, nullable=False)
     status = db.Column(db.String(50), default='AGUARDANDO_CANDIDATO') # AGUARDANDO_CANDIDATO, ENTREVISTA, P2, SJD, SUBCMT, CMT, FINALIZADO
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+    data_criacao = db.Column(db.DateTime, default=get_now_br)
     
     entrevistador_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     entrevistador = db.relationship('User', foreign_keys=[entrevistador_id])

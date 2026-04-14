@@ -9,8 +9,12 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, or_
 from xhtml2pdf import pisa
+import pytz
 
 from models import db, User, Ficha
+
+def get_now_br():
+    return datetime.now(pytz.timezone('America/Sao_Paulo'))
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'chave_secreta_baep_xyz123'
@@ -41,7 +45,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def get_next_num_sequencial():
-    year = datetime.now().year
+    year = get_now_br().year
     last_ficha = Ficha.query.filter(Ficha.num_sequencial.like(f"{year}-%")).order_by(Ficha.id.desc()).first()
     if last_ficha:
         last_num = int(last_ficha.num_sequencial.split('-')[1])
@@ -58,7 +62,7 @@ def send_notification_email(to_email, subject, body):
     print(f"Notificação (E-mail desativado): Para: {to_email} | Assunto: {subject}")
 
 def render_pdf(template_name, **kwargs):
-    html = render_template(template_name, datetime=datetime, **kwargs)
+    html = render_template(template_name, datetime=get_now_br(), **kwargs)
     result = io.BytesIO()
     # xhtml2pdf likes a bit more help with paths if images are relative, but for now we'll keep it simple
     pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
@@ -276,7 +280,7 @@ def analise(ficha_id):
 
             ficha.parecer_entrevista_obs = request.form.get('parecer_entrevista_obs')
             ficha.parecer_entrevista_decisao = request.form.get('parecer_entrevista_decisao')
-            ficha.parecer_entrevista_data = datetime.utcnow()
+            ficha.parecer_entrevista_data = get_now_br()
             ficha.status = 'P2'
             db.session.commit() # commit needed if we want the ID, but it already has an ID. Just to be safe no need to commit here, we just need URL.
             link = url_for('analise', ficha_id=ficha.id, _external=True)
@@ -285,7 +289,7 @@ def analise(ficha_id):
         elif current_user.role == 'P2' and ficha.status == 'P2':
             ficha.parecer_p2_obs = request.form.get('parecer_p2_obs')
             ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
-            ficha.parecer_p2_data = datetime.utcnow()
+            ficha.parecer_p2_data = get_now_br()
             ficha.status = 'SJD'
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.\n\nAcesse: {link}")
@@ -293,21 +297,21 @@ def analise(ficha_id):
         elif current_user.role == 'SJD' and ficha.status == 'SJD':
             ficha.parecer_sjd_obs = request.form.get('parecer_sjd_obs')
             ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
-            ficha.parecer_sjd_data = datetime.utcnow()
+            ficha.parecer_sjd_data = get_now_br()
             ficha.status = 'SUBCMT'
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.\n\nAcesse: {link}")
             
         elif current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT':
             ficha.parecer_subcmt_decisao = request.form.get('parecer_subcmt_decisao')
-            ficha.parecer_subcmt_data = datetime.utcnow()
+            ficha.parecer_subcmt_data = get_now_br()
             ficha.status = 'CMT'
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('CMT', f"Ação Pendente (CMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de Comando.\n\nAcesse: {link}")
 
         elif current_user.role == 'CMT' and ficha.status == 'CMT':
             ficha.parecer_cmt_decisao = request.form.get('parecer_cmt_decisao')
-            ficha.parecer_cmt_data = datetime.utcnow()
+            ficha.parecer_cmt_data = get_now_br()
             ficha.status = 'FINALIZADO'
 
         db.session.commit()

@@ -40,7 +40,7 @@
         <div class="collapse mt-3" id="allDataCollapse">
             <div class="card card-body">
                 <h6>1. Dados Pessoais</h6>
-                <p>Nasc: {{ ficha.data_nasc }} | CPF: {{ ficha.cpf }} | RG: {{ ficha.rg }} | Ingresso: {{ ficha.data_ingresso }} | Endereço: {{ ficha.endereco }}, {{ ficha.bairro }}, {{ ficha.municipio }}</p>
+                <p>Nasc: {{ ficha.data_nasc | format_date }} | CPF: {{ ficha.cpf }} | RG: {{ ficha.rg }} | Ingresso: {{ ficha.data_ingresso | format_date }} | Endereço: {{ ficha.endereco }}, {{ ficha.bairro }}, {{ ficha.municipio }}</p>
                 <!-- Include more fields if desired -->
             </div>
         </div>

@@ -112,8 +112,8 @@
         <tr><th>Posto/Graduação</th><td>{{ ficha.posto_grad or '-' }}</td></tr>
         <tr><th>RE</th><td>{{ ficha.re or '-' }}</td></tr>
         <tr><th>CPF</th><td>{{ ficha.cpf or '-' }}</td></tr>
-        <tr><th>Data de Nascimento</th><td>{{ ficha.data_nasc or '-' }}</td></tr>
-        <tr><th>Data de Ingresso</th><td>{{ ficha.data_ingresso or '-' }}</td></tr>
+        <tr><th>Data de Nascimento</th><td>{{ ficha.data_nasc | format_date }}</td></tr>
+        <tr><th>Data de Ingresso</th><td>{{ ficha.data_ingresso | format_date }}</td></tr>
         <tr><th>OPM Atual</th><td>{{ ficha.opm or '-' }}</td></tr>
         <tr><th>Email</th><td>{{ ficha.email or '-' }}</td></tr>
         <tr><th>Celular</th><td>{{ ficha.celular or '-' }}</td></tr>

@@ -92,7 +92,7 @@
                                     <div class="mt-1"><span class="badge bg-danger shadow-sm"><i class="fas fa-exclamation-circle"></i> SUA AÇÃO PENDENTE</span></div>
                                     {% endif %}
                                 </td>
-                                <td>{{ ficha.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ ficha.data_criacao | format_date('%d/%m/%Y %H:%M') }}</td>
                                 <td>
                                     {% if ficha.nome_completo %}
                                         {{ ficha.nome_completo }} <br><small class="text-muted">RE: {{ ficha.re }}</small>

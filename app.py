@@ -24,6 +24,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+@app.template_filter('format_date')
+def format_date(value, format='%d/%m/%Y'):
+    if not value: return ""
+    if isinstance(value, datetime):
+        return value.strftime(format)
+    # Se for string vinda do input type="date" (YYYY-MM-DD cada vez mais comum)
+    try:
+        return datetime.strptime(str(value), '%Y-%m-%d').strftime(format)
+    except:
+        return value
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'

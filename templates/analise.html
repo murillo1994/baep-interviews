@@ -38,10 +38,73 @@
             </div>
         </div>
         <div class="collapse mt-3" id="allDataCollapse">
-            <div class="card card-body">
-                <h6>1. Dados Pessoais</h6>
-                <p>Nasc: {{ ficha.data_nasc | format_date }} | CPF: {{ ficha.cpf }} | RG: {{ ficha.rg }} | Ingresso: {{ ficha.data_ingresso | format_date }} | Endereço: {{ ficha.endereco }}, {{ ficha.bairro }}, {{ ficha.municipio }}</p>
-                <!-- Include more fields if desired -->
+            <div class="card card-body border-0 bg-white shadow-sm">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary border-bottom pb-1"><i class="fas fa-user-circle me-1"></i> 1. Dados Pessoais</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Nome:</strong> {{ ficha.nome_completo }}</li>
+                            <li><strong>RE:</strong> {{ ficha.re }} | <strong>Posto:</strong> {{ ficha.posto_grad }}</li>
+                            <li><strong>CPF:</strong> {{ ficha.cpf }} | <strong>RG:</strong> {{ ficha.rg }}</li>
+                            <li><strong>Nasc:</strong> {{ ficha.data_nasc | format_date }}</li>
+                            <li><strong>Ingresso:</strong> {{ ficha.data_ingresso | format_date }}</li>
+                            <li><strong>OPM:</strong> {{ ficha.opm }}</li>
+                            <li><strong>Tempo Serviço:</strong> {{ ficha.tempo_servico }}</li>
+                            <li><strong>Tempo Averbado:</strong> {{ ficha.tempo_averbado }}</li>
+                            <li><strong>Endereço:</strong> {{ ficha.endereco }}, {{ ficha.bairro }}, {{ ficha.municipio }}</li>
+                            <li><strong>Contato:</strong> {{ ficha.celular }} | {{ ficha.email }}</li>
+                            <li><strong>Estado Civil:</strong> {{ ficha.estado_civil }} | <strong>Cônjuge PM:</strong> {{ ficha.conjuge_pm }}</li>
+                            <li><strong>Art. 130:</strong> {{ ficha.art_130 }}</li>
+                            <li><strong>Filhos:</strong> {{ ficha.possui_filhos }} (Qtd: {{ ficha.qtd_filhos or 0 }}, Idades: {{ ficha.idade_filhos or '-' }})</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary border-bottom pb-1"><i class="fas fa-gavel me-1"></i> 2. Disciplina</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>IPM/Sindicância:</strong> {{ ficha.disc_ipm or 'Nada consta' }}</li>
+                            <li><strong>PAD/CD/CJ:</strong> {{ ficha.disc_pad or 'Nada consta' }}</li>
+                            <li><strong>Punições:</strong> {{ ficha.disc_punicoes or 'Nada consta' }}</li>
+                        </ul>
+                        
+                        <h6 class="text-primary border-bottom pb-1 mt-3"><i class="fas fa-id-card me-1"></i> 3. Habilitações</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Armamento/EMPO:</strong> {{ ficha.hab_armamento or '-' }}</li>
+                            <li><strong>CNH:</strong> {{ ficha.hab_cnh }} | <strong>SAT:</strong> {{ ficha.hab_sat or '-' }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary border-bottom pb-1"><i class="fas fa-briefcase me-1"></i> 4. Atividade Profissional</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Função Atual:</strong> {{ ficha.prof_funcao_atual }}</li>
+                            <li><strong>Funções Anteriores:</strong> {{ ficha.prof_funcoes_ant }}</li>
+                            <li><strong>Tempo Operacional:</strong> {{ ficha.prof_tempo_operacional }}</li>
+                            <li><strong>Unidades Serviu:</strong> {{ ficha.prof_unidades }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary border-bottom pb-1"><i class="fas fa-graduation-cap me-1"></i> 5. Formação e Cursos</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Cursos Op:</strong> {{ ficha.form_cursos_op }}</li>
+                            <li><strong>Artes Marciais:</strong> {{ ficha.form_artes_marciais or '-' }}</li>
+                            <li><strong>TEB/Técnicos:</strong> {{ ficha.form_outros or '-' }}</li>
+                            <li><strong>Forças Armadas:</strong> {{ ficha.form_forcas_armadas or '-' }}</li>
+                            <li><strong>Expertise Adm:</strong> {{ ficha.form_expertise_adm or '-' }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-12">
+                        <h6 class="text-primary border-bottom pb-1"><i class="fas fa-heartbeat me-1"></i> 6. EAP / Inspeção Saúde</h6>
+                        <ul class="list-unstyled small d-flex flex-wrap gap-4">
+                            <li><strong>Saúde:</strong> {{ ficha.eap_saude }}</li>
+                            <li><strong>TAF:</strong> {{ ficha.eap_taf }}</li>
+                            <li><strong>Tiro:</strong> {{ ficha.eap_tiro }}</li>
+                            <li><strong>EAP:</strong> {{ ficha.eap_eap }}</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -128,7 +128,25 @@
         <tr><th>SAT</th><td>{{ ficha.hab_sat or '-' }}</td></tr>
     </table>
 
-    <div class="section-title">3. Pareceres e Decisões</div>
+    <div class="section-title">3. Atividade Profissional e Formação</div>
+    <table>
+        <tr><th>Função Atual</th><td>{{ ficha.prof_funcao_atual or '-' }}</td></tr>
+        <tr><th>Funções Anteriores</th><td>{{ ficha.prof_funcoes_ant or '-' }}</td></tr>
+        <tr><th>Tempo Operacional</th><td>{{ ficha.prof_tempo_operacional or '-' }}</td></tr>
+        <tr><th>Unidades onde serviu</th><td>{{ ficha.prof_unidades or '-' }}</td></tr>
+        <tr><th>Cursos Operacionais</th><td>{{ ficha.form_cursos_op or '-' }}</td></tr>
+        <tr><th>Artes Marciais</th><td>{{ ficha.form_artes_marciais or '-' }}</td></tr>
+        <tr><th>Outras Expertises/Adm</th><td>{{ ficha.form_expertise_adm or '-' }}</td></tr>
+    </table>
+
+    <div class="section-title">4. EAP / Inspeção Saúde</div>
+    <table>
+        <tr><th>Saúde</th><td>{{ ficha.eap_saude or '-' }}</td></tr>
+        <tr><th>TAF</th><td>{{ ficha.eap_taf or '-' }} | <strong>Tiro:</strong> {{ ficha.eap_tiro or '-' }}</td></tr>
+        <tr><th>EAP</th><td>{{ ficha.eap_eap or '-' }}</td></tr>
+    </table>
+
+    <div class="section-title">5. Pareceres e Decisões</div>
     <table>
         <tr>
             <th>Entrevistador ({{ ficha.entrevistador.nome if ficha.entrevistador else '-' }})</th>

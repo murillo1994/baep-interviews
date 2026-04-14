@@ -54,7 +54,7 @@
         <h5 class="mb-0">7. Entrevista e Parecer do Entrevistador</h5>
     </div>
     <div class="card-body">
-        {% if current_user.role == 'ENTREVISTADOR' and ficha.status == 'ENTREVISTA' %}
+        {% if (current_user.role == 'ENTREVISTADOR' or current_user.id == ficha.entrevistador_id) and ficha.status == 'ENTREVISTA' %}
             <div class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label">Restrição médica?</label>

@@ -1,14 +1,21 @@
-# Ambientes virtuais
-.venv/
-venv/
-env/
+# Flask/Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.env
+.venv
+venv/
+instance/
+.pytest_cache/
 
-# Banco de dados
-*.sqlite3
+# Banco de Dados (SENSÍVEL)
 *.db
-baep.db
+*.sqlite3
 
-# Uploads dos candidatos (fotos, etc)
-static/uploads/
+# Uploads de fotos
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDEs
+.vscode/
+.idea/

@@ -8,7 +8,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash, g
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, or_
-from xhtml2pdf import pisa
+try:
+    from xhtml2pdf import pisa
+    PDF_ENABLED = True
+except ImportError:
+    PDF_ENABLED = False
+
 import pytz
 
 from models import db, User, Ficha
@@ -367,6 +372,30 @@ def avocar(ficha_id):
         
     return render_template('avocar_ficha.html', ficha=ficha, entrevistadores=entrevistadores)
 
+
+@app.route('/ficha/excluir/<int:id>', methods=['POST'])
+@login_required
+def excluir_ficha(id):
+    if current_user.role != 'ADMIN':
+        flash('Acesso negado.', 'danger')
+        return redirect(url_for('dashboard'))
+        
+    ficha = Ficha.query.get_or_404(id)
+    num_seq = ficha.num_sequencial
+    
+    # Se houver foto, opcionalmente apagar o arquivo físico
+    if ficha.foto_candidato:
+        try:
+            foto_path = os.path.join(app.root_path, 'static', 'uploads', ficha.foto_candidato)
+            if os.path.exists(foto_path):
+                os.remove(foto_path)
+        except:
+            pass
+
+    db.session.delete(ficha)
+    db.session.commit()
+    flash(f'Ficha {num_seq} excluída com sucesso.', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/usuarios')
 @login_required

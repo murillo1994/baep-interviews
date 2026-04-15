@@ -2,7 +2,7 @@ Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 qrcode[pil]==7.4.2
-Pillow
+Pillow==10.1.0
 python-dotenv==1.0.0
+pytz==2023.3.post1
 xhtml2pdf==0.2.11
-pytz

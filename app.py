@@ -49,6 +49,10 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+@app.context_processor
+def inject_now():
+    return {'datetime': datetime}
+
 def get_next_num_sequencial():
     year = get_now_br().year
     last_ficha = Ficha.query.filter(Ficha.num_sequencial.like(f"{year}-%")).order_by(Ficha.id.desc()).first()

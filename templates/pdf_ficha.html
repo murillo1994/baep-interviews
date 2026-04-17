@@ -146,37 +146,58 @@
         <tr><th>EAP</th><td>{{ ficha.eap_eap or '-' }}</td></tr>
     </table>
 
-    <div class="section-title">5. Pareceres e Decisões</div>
+    <div class="section-title">5. Entrevista e Pareceres</div>
     <table>
+        <tr>
+            <th colspan="2" style="background-color: #e8eaf6; text-align: center;">DETALHES DA ENTREVISTA</th>
+        </tr>
+        <tr><th>Restrição Médica</th><td>{{ ficha.ent_restricao }} (Quais: {{ ficha.ent_restricao_quais or '-' }}, Vezes: {{ ficha.ent_restricao_vezes or '-' }}, Motivo: {{ ficha.ent_restricao_motivo or '-' }}, Tempo: {{ ficha.ent_restricao_tempo or '-' }})</td></tr>
+        <tr><th>PAAPM</th><td>{{ ficha.ent_paapm }} (Motivo: {{ ficha.ent_paapm_motivo or '-' }}, Restrição: {{ ficha.ent_paapm_restricao or '-' }})</td></tr>
+        <tr><th>Limitação/Saúde</th><td>{{ ficha.ent_limitacao or '-' }}</td></tr>
+        <tr><th>Histórico Conjugal</th><td>{{ ficha.ent_conflitos or '-' }}</td></tr>
+        <tr><th>Medida Protetiva</th><td>{{ ficha.ent_medida_protetiva or '-' }}</td></tr>
+        <tr><th>Bebida / Fumo</th><td>Bebida: {{ ficha.ent_bebida }} (Freq: {{ ficha.ent_bebida_freq or '-' }}) / Fuma: {{ ficha.ent_fumo }}</td></tr>
+        <tr><th>Ativ. Física</th><td>{{ ficha.ent_ativ_fisica or '-' }}</td></tr>
+        <tr><th>Cursos/Ciência</th><td>{{ ficha.ent_ciencia or '-' }}</td></tr>
+        <tr><th>Intenção Ativ. BAEP</th><td>{{ ficha.ent_ativ_baep or '-' }}</td></tr>
+        <tr><th>Conhecido no BAEP</th><td>{{ ficha.ent_conhecido or '-' }}</td></tr>
+        <tr><th>Motivos p/ servir</th><td>{{ ficha.ent_motivos or '-' }}</td></tr>
+        <tr><th>Inscrição Banco</th><td>{{ ficha.ent_banco or '-' }}</td></tr>
+    </table>
+
+    <table style="margin-top: 20px;">
+        <tr>
+            <th colspan="2" style="background-color: #e8eaf6; text-align: center;">PARECERES OFICIAIS</th>
+        </tr>
         <tr>
             <th>Entrevistador ({{ ficha.entrevistador.nome if ficha.entrevistador else '-' }})</th>
             <td>
-                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_entrevista_decisao }}">{{ ficha.parecer_entrevista_decisao or 'Pendente' }}</span><br>
-                <strong>Obs:</strong> {{ ficha.parecer_entrevista_obs or 'Sem observações' }}
+                {{ ficha.parecer_entrevista_obs or 'Sem observações' }}<br>
+                <strong>Parecer:</strong> <span class="parecer-status {{ ficha.parecer_entrevista_decisao }}">{{ ficha.parecer_entrevista_decisao or 'Pendente' }}</span>
             </td>
         </tr>
         <tr>
             <th>P2 (Inteligência)</th>
             <td>
-                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_p2_decisao }}">{{ ficha.parecer_p2_decisao or 'Pendente' }}</span><br>
-                <strong>Obs:</strong> {{ ficha.parecer_p2_obs or 'Sem observações' }}
+                {{ ficha.parecer_p2_obs or 'Sem observações' }}<br>
+                <strong>Parecer:</strong> <span class="parecer-status {{ ficha.parecer_p2_decisao }}">{{ ficha.parecer_p2_decisao or 'Pendente' }}</span>
             </td>
         </tr>
         <tr>
             <th>SJD (Justiça e Disciplina)</th>
             <td>
-                <strong>Decisão:</strong> <span class="parecer-status {{ ficha.parecer_sjd_decisao }}">{{ ficha.parecer_sjd_decisao or 'Pendente' }}</span><br>
-                <strong>Obs:</strong> {{ ficha.parecer_sjd_obs or 'Sem observações' }}
+                {{ ficha.parecer_sjd_obs or 'Sem observações' }}<br>
+                <strong>Parecer:</strong> <span class="parecer-status {{ ficha.parecer_sjd_decisao }}">{{ ficha.parecer_sjd_decisao or 'Pendente' }}</span>
             </td>
         </tr>
         <tr>
             <th>Subcomandante</th>
             <td>
-                <strong>Decisão:</strong> {{ ficha.parecer_subcmt_decisao or 'Pendente' }}
+                <strong>Parecer:</strong> {{ ficha.parecer_subcmt_decisao or 'Pendente' }}
             </td>
         </tr>
         <tr>
-            <th>Comandante (Final)</th>
+            <th>Comandante (Decisão Final)</th>
             <td>
                 <strong>Decisão Final:</strong> {{ ficha.parecer_cmt_decisao or 'Pendente' }}
             </td>

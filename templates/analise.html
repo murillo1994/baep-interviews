@@ -117,41 +117,188 @@
         <h5 class="mb-0">7. Entrevista e Parecer do Entrevistador</h5>
     </div>
     <div class="card-body">
-        {% if (current_user.role == 'ENTREVISTADOR' or current_user.id == ficha.entrevistador_id) and ficha.status == 'ENTREVISTA' %}
+        {% if (current_user.id == ficha.entrevistador_id or current_user.role == 'ADMIN') and ficha.status == 'ENTREVISTA' %}
             <div class="row g-3">
-                <div class="col-md-12">
-                    <label class="form-label">Restrição médica?</label>
-                    <input type="text" class="form-control" name="ent_restricao" required>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Possui restrição médica ou já esteve de restrição?</label>
+                    <select class="form-select" name="ent_restricao" required>
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
                 </div>
-                <div class="col-md-12">
-                    <label class="form-label">PAAPM?</label>
-                    <input type="text" class="form-control" name="ent_paapm">
-                </div>
-                <!-- ... add other interview fields briefly ... -->
-                <div class="col-md-12">
-                    <label class="form-label">Observações e Análise (Parecer):</label>
-                    <textarea class="form-control" name="parecer_entrevista_obs" rows="3" required></textarea>
+                <div class="col-md-6">
+                    <label class="form-label">Quais?</label>
+                    <input type="text" class="form-control" name="ent_restricao_quais">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Decisão:</label>
-                    <select class="form-select" name="parecer_entrevista_decisao" required>
+                    <label class="form-label">Quantas vezes?</label>
+                    <input type="text" class="form-control" name="ent_restricao_vezes">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Motivo?</label>
+                    <input type="text" class="form-control" name="ent_restricao_motivo">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Quanto tempo?</label>
+                    <input type="text" class="form-control" name="ent_restricao_tempo">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Frequentou PAAPM?</label>
+                    <select class="form-select" name="ent_paapm">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Motivo?</label>
+                    <input type="text" class="form-control" name="ent_paapm_motivo">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Teve restrição?</label>
+                    <input type="text" class="form-control" name="ent_paapm_restricao">
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Possui limitação de movimento, lesão ou problema de saúde que dificulte no policiamento?</label>
+                    <textarea class="form-control" name="ent_limitacao" rows="2"></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Há histórico de discussões ou conflitos conjugais?</label>
+                    <textarea class="form-control" name="ent_conflitos" rows="2"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tem/teve imposição de medida protetiva?</label>
+                    <textarea class="form-control" name="ent_medida_protetiva" rows="2"></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Consome bebida alcoólica?</label>
+                    <select class="form-select" name="ent_bebida">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Com qual frequência?</label>
+                    <input type="text" class="form-control" name="ent_bebida_freq">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Fuma?</label>
+                    <select class="form-select" name="ent_fumo">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Regularidade de atividade física?</label>
+                    <input type="text" class="form-control" name="ent_ativ_fisica">
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Se Oficial ou Subten/Sgt – tem ciência que há uma relação de Cursos e Estágios obrigatórios e desejáveis para o contingente de AEP, os quais deverão ser realizados?</label>
+                    <div class="mt-1">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="ent_ciencia" id="ciencia_sim" value="Sim">
+                            <label class="form-check-label" for="ciencia_sim">Sim</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="ent_ciencia" id="ciencia_nao" value="Não">
+                            <label class="form-check-label" for="ciencia_nao">Não</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Quais Atividades Operacionais do 3º BAEP tem intenção de realizar:</label>
+                    <div class="row px-3">
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="Pel AEP" id="ativ_aep">
+                            <label class="form-check-label" for="ativ_aep">Pel AEP</label>
+                        </div>
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="Canil" id="ativ_canil">
+                            <label class="form-check-label" for="ativ_canil">Canil</label>
+                        </div>
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="Cavalaria" id="ativ_caval">
+                            <label class="form-check-label" for="ativ_caval">Cavalaria</label>
+                        </div>
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="Administrativo" id="ativ_adm">
+                            <label class="form-check-label" for="ativ_adm">Administrativo</label>
+                        </div>
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="GPR" id="ativ_gpr">
+                            <label class="form-check-label" for="ativ_gpr">GPR</label>
+                        </div>
+                        <div class="col-md-4 form-check">
+                            <input class="form-check-input" type="checkbox" name="ent_ativ_baep" value="Outros" id="ativ_outros">
+                            <label class="form-check-label" for="ativ_outros">Outros</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Possui algum conhecido no 3º BAEP?</label>
+                    <input type="text" class="form-control" name="ent_conhecido">
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Motivos pelos quais deseja servir no 3º BAEP:</label>
+                    <textarea class="form-control" name="ent_motivos" rows="2"></textarea>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Inscrição no Banco de dados do 3º BAEP?</label>
+                    <select class="form-select" name="ent_banco">
+                        <option value="Sim, já fiz.">Sim, já fiz.</option>
+                        <option value="Não, caso o parecer seja favorável, o farei.">Não, caso o parecer seja favorável, o farei.</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                    <label class="form-label fw-bold text-primary">Observações e Análise Geral (Parecer):</label>
+                    <textarea class="form-control border-primary" name="parecer_entrevista_obs" rows="3" required></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-primary">Decisão:</label>
+                    <select class="form-select border-primary" name="parecer_entrevista_decisao" required>
                         <option value="Favorável">Favorável</option>
                         <option value="Desfavorável">Desfavorável</option>
                     </select>
                 </div>
             </div>
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Parecer</button>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg shadow-sm"><i class="fas fa-save me-2"></i> Salvar Parecer e Enviar para P2</button>
             </div>
         {% else %}
-            <div class="alert alert-secondary mb-0">
+            <div class="alert alert-secondary mb-0 shadow-sm border-0">
                 {% if ficha.parecer_entrevista_decisao %}
-                    <p><strong>Observações:</strong> {{ ficha.parecer_entrevista_obs }}</p>
-                    <p><strong>Parecer:</strong> 
-                        <span class="badge {% if ficha.parecer_entrevista_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %}">{{ ficha.parecer_entrevista_decisao }}</span>
-                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6"><strong>Restrição Médica:</strong> {{ ficha.ent_restricao }} (Quais: {{ ficha.ent_restricao_quais or '-' }}, Motivo: {{ ficha.ent_restricao_motivo or '-' }})</div>
+                        <div class="col-md-6"><strong>PAAPM:</strong> {{ ficha.ent_paapm }} (Motivo: {{ ficha.ent_paapm_motivo or '-' }}, Restr: {{ ficha.ent_paapm_restricao or '-' }})</div>
+                        <div class="col-md-12"><strong>Limitação/Saúde:</strong> {{ ficha.ent_limitacao or 'Nenhuma' }}</div>
+                        <div class="col-md-6"><strong>Conflitos Conjugais:</strong> {{ ficha.ent_conflitos or 'Não informado' }}</div>
+                        <div class="col-md-6"><strong>Medida Protetiva:</strong> {{ ficha.ent_medida_protetiva or 'Não informado' }}</div>
+                        <div class="col-md-4"><strong>Bebida:</strong> {{ ficha.ent_bebida }} (Freq: {{ ficha.ent_bebida_freq or '-' }})</div>
+                        <div class="col-md-4"><strong>Fuma:</strong> {{ ficha.ent_fumo }}</div>
+                        <div class="col-md-4"><strong>Ativ. Física:</strong> {{ ficha.ent_ativ_fisica or '-' }}</div>
+                        <div class="col-md-6"><strong>Ciência Cursos:</strong> {{ ficha.ent_ciencia or '-' }}</div>
+                        <div class="col-md-6"><strong>Intenção Ativ:</strong> {{ ficha.ent_ativ_baep or '-' }}</div>
+                        <div class="col-md-6"><strong>Conhecido BAEP:</strong> {{ ficha.ent_conhecido or '-' }}</div>
+                        <div class="col-md-6"><strong>Inscrição Banco:</strong> {{ ficha.ent_banco or '-' }}</div>
+                        <div class="col-md-12 border-top pt-2 mt-2">
+                            <p class="mb-1"><strong>Observações:</strong> {{ ficha.parecer_entrevista_obs }}</p>
+                            <p class="mb-0"><strong>Parecer:</strong> 
+                                <span class="badge {% if ficha.parecer_entrevista_decisao == 'Favorável' %}bg-success{% else %}bg-danger{% endif %} fs-6">{{ ficha.parecer_entrevista_decisao }}</span>
+                            </p>
+                        </div>
+                    </div>
                 {% else %}
-                    Aguardando preenchimento.
+                    <i class="fas fa-clock me-2"></i> Aguardando preenchimento pelo entrevistador.
                 {% endif %}
             </div>
         {% endif %}

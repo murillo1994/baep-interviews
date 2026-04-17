@@ -272,17 +272,32 @@ def analise(ficha_id):
     ficha = Ficha.query.get_or_404(ficha_id)
     
     if request.method == 'POST':
-        if current_user.id == ficha.entrevistador_id and ficha.status == 'ENTREVISTA':
+        if (current_user.id == ficha.entrevistador_id or current_user.role == 'ADMIN') and ficha.status == 'ENTREVISTA':
             ficha.ent_restricao = request.form.get('ent_restricao')
+            ficha.ent_restricao_quais = request.form.get('ent_restricao_quais')
+            ficha.ent_restricao_vezes = request.form.get('ent_restricao_vezes')
+            ficha.ent_restricao_motivo = request.form.get('ent_restricao_motivo')
+            ficha.ent_restricao_tempo = request.form.get('ent_restricao_tempo')
+            
             ficha.ent_paapm = request.form.get('ent_paapm')
+            ficha.ent_paapm_motivo = request.form.get('ent_paapm_motivo')
+            ficha.ent_paapm_restricao = request.form.get('ent_paapm_restricao')
+            
             ficha.ent_limitacao = request.form.get('ent_limitacao')
             ficha.ent_conflitos = request.form.get('ent_conflitos')
             ficha.ent_medida_protetiva = request.form.get('ent_medida_protetiva')
+            
             ficha.ent_bebida = request.form.get('ent_bebida')
+            ficha.ent_bebida_freq = request.form.get('ent_bebida_freq')
+            
             ficha.ent_fumo = request.form.get('ent_fumo')
             ficha.ent_ativ_fisica = request.form.get('ent_ativ_fisica')
             ficha.ent_ciencia = request.form.get('ent_ciencia')
-            ficha.ent_ativ_baep = request.form.get('ent_ativ_baep')
+            
+            # Atividades Operacionais (Pode ser múltiplo)
+            ativ_baep = request.form.getlist('ent_ativ_baep')
+            ficha.ent_ativ_baep = ", ".join(ativ_baep)
+            
             ficha.ent_conhecido = request.form.get('ent_conhecido')
             ficha.ent_motivos = request.form.get('ent_motivos')
             ficha.ent_banco = request.form.get('ent_banco')
@@ -291,7 +306,7 @@ def analise(ficha_id):
             ficha.parecer_entrevista_decisao = request.form.get('parecer_entrevista_decisao')
             ficha.parecer_entrevista_data = get_now_br()
             ficha.status = 'P2'
-            db.session.commit() # commit needed if we want the ID, but it already has an ID. Just to be safe no need to commit here, we just need URL.
+            db.session.commit()
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.\n\nAcesse: {link}")
         
@@ -561,11 +576,24 @@ from sqlalchemy import text
 def init_db():
     with app.app_context():
         db.create_all()
-        try:
-            db.session.execute(text('ALTER TABLE ficha ADD COLUMN foto_candidato VARCHAR(255)'))
-            db.session.commit()
-        except:
-            db.session.rollback()
+        # Lista de colunas para adicionar caso não existam (migração manual simples para SQLite)
+        colunas_novas = [
+            ('foto_candidato', 'VARCHAR(255)'),
+            ('ent_restricao_quais', 'TEXT'),
+            ('ent_restricao_vezes', 'VARCHAR(50)'),
+            ('ent_restricao_motivo', 'TEXT'),
+            ('ent_restricao_tempo', 'VARCHAR(100)'),
+            ('ent_paapm_motivo', 'TEXT'),
+            ('ent_paapm_restricao', 'VARCHAR(100)'),
+            ('ent_bebida_freq', 'VARCHAR(100)')
+        ]
+        for col, tip in colunas_novas:
+            try:
+                db.session.execute(text(f'ALTER TABLE ficha ADD COLUMN {col} {tip}'))
+                db.session.commit()
+            except:
+                db.session.rollback()
+
         if not User.query.filter_by(username='admin').first():
             db.session.add(User(username='admin', password=generate_password_hash('admin123'), nome='Administrador P1', email='admin@baep.com', role='ADMIN'))
             db.session.add(User(username='entrev', password=generate_password_hash('senha123'), nome='Oficial Silva', email='entrev@baep.com', role='ENTREVISTADOR'))

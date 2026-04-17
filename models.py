@@ -82,19 +82,30 @@ class Ficha(db.Model):
     foto_candidato = db.Column(db.String(255))
 
     # --- 7) Entrevista ---
-    ent_restricao = db.Column(db.Text)
-    ent_paapm = db.Column(db.Text)
+    ent_restricao = db.Column(db.String(10)) # Sim / Não
+    ent_restricao_quais = db.Column(db.Text)
+    ent_restricao_vezes = db.Column(db.String(50))
+    ent_restricao_motivo = db.Column(db.Text)
+    ent_restricao_tempo = db.Column(db.String(100))
+    
+    ent_paapm = db.Column(db.String(10)) # Sim / Não
+    ent_paapm_motivo = db.Column(db.Text)
+    ent_paapm_restricao = db.Column(db.String(100))
+    
     ent_limitacao = db.Column(db.Text)
     ent_conflitos = db.Column(db.Text)
     ent_medida_protetiva = db.Column(db.Text)
-    ent_bebida = db.Column(db.Text)
-    ent_fumo = db.Column(db.Text)
+    
+    ent_bebida = db.Column(db.String(10)) # Sim / Não
+    ent_bebida_freq = db.Column(db.String(100))
+    
+    ent_fumo = db.Column(db.String(10)) # Sim / Não
     ent_ativ_fisica = db.Column(db.Text)
     ent_ciencia = db.Column(db.String(20))
     ent_ativ_baep = db.Column(db.Text)
     ent_conhecido = db.Column(db.Text)
     ent_motivos = db.Column(db.Text)
-    ent_banco = db.Column(db.String(20))
+    ent_banco = db.Column(db.String(100))
 
     # --- 8) Pareceres ---
     parecer_entrevista_obs = db.Column(db.Text)

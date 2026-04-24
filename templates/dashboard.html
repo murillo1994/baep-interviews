@@ -2,10 +2,15 @@
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col">
+    <div class="col-md-8">
         <h2 class="baep-blue-text"><i class="fas fa-desktop me-2"></i> Painel de Controle</h2>
-        <hr>
     </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('alterar_senha') }}" class="btn btn-outline-warning btn-sm fw-bold">
+            <i class="fas fa-key me-1"></i> Alterar Minha Senha
+        </a>
+    </div>
+    <div class="col-12"><hr></div>
 </div>
 
 <div class="row mb-4">

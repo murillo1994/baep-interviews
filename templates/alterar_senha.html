@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 mt-4">
+        <div class="card shadow">
+            <div class="card-header baep-blue text-center">
+                <h4 class="mb-0"><i class="fas fa-key me-2"></i> Alterar Senha</h4>
+            </div>
+            <div class="card-body p-4">
+                <form action="{{ url_for('alterar_senha') }}" method="POST">
+                    <!-- Senha Atual -->
+                    <div class="form-outline mb-4">
+                        <input type="password" id="senha_atual" name="senha_atual" class="form-control form-control-lg" required />
+                        <label class="form-label" for="senha_atual">Senha Atual</label>
+                    </div>
+
+                    <!-- Nova Senha -->
+                    <div class="form-outline mb-4">
+                        <input type="password" id="nova_senha" name="nova_senha" class="form-control form-control-lg" required />
+                        <label class="form-label" for="nova_senha">Nova Senha</label>
+                    </div>
+
+                    <!-- Confirmar Nova Senha -->
+                    <div class="form-outline mb-4">
+                        <input type="password" id="confirmar_senha" name="confirmar_senha" class="form-control form-control-lg" required />
+                        <label class="form-label" for="confirmar_senha">Confirmar Nova Senha</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg baep-blue border-0 shadow">
+                            <i class="fas fa-save me-2"></i> Salvar Nova Senha
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <p class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i> Por segurança, você deve fornecer sua senha atual para realizar a alteração.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

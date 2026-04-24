@@ -508,6 +508,33 @@ def excluir_usuario(id):
         
     return redirect(url_for('listar_usuarios'))
 
+@app.route('/perfil/senha', methods=['GET', 'POST'])
+@login_required
+def alterar_senha():
+    if request.method == 'POST':
+        senha_atual = request.form.get('senha_atual')
+        nova_senha = request.form.get('nova_senha')
+        confirmar_senha = request.form.get('confirmar_senha')
+        
+        if not check_password_hash(current_user.password, senha_atual):
+            flash('Senha atual incorreta.', 'danger')
+            return redirect(url_for('alterar_senha'))
+            
+        if nova_senha != confirmar_senha:
+            flash('As novas senhas não coincidem.', 'danger')
+            return redirect(url_for('alterar_senha'))
+            
+        if not nova_senha:
+            flash('A nova senha não pode ser vazia.', 'danger')
+            return redirect(url_for('alterar_senha'))
+            
+        current_user.password = generate_password_hash(nova_senha)
+        db.session.commit()
+        flash('Senha alterada com sucesso!', 'success')
+        return redirect(url_for('dashboard'))
+        
+    return render_template('alterar_senha.html')
+
 from flask import send_file
 
 @app.route('/exportar/pdf/<int:ficha_id>')

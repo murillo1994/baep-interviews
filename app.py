@@ -153,7 +153,7 @@ def dashboard():
     fichas = query.order_by(Ficha.data_criacao.desc()).all()
     
     # Todos os usuários podem realizar entrevistas agora
-    entrevistadores = User.query.filter(User.role != 'ADMIN').all()
+    entrevistadores = User.query.all()
     return render_template('dashboard.html', fichas=fichas, entrevistadores=entrevistadores, search=search)
 
 @app.route('/p1/gerar', methods=['POST'])

@@ -125,3 +125,15 @@ class Ficha(db.Model):
 
     parecer_cmt_decisao = db.Column(db.String(50)) # Ofício / Arquivo / Não é interesse
     parecer_cmt_data = db.Column(db.DateTime)
+
+class Movimentacao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ficha_id = db.Column(db.Integer, db.ForeignKey('ficha.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status_anterior = db.Column(db.String(50))
+    status_novo = db.Column(db.String(50))
+    data = db.Column(db.DateTime, default=get_now_br)
+    descricao = db.Column(db.Text)
+    
+    user = db.relationship('User')
+    ficha = db.relationship('Ficha', backref=db.backref('movimentacoes', lazy=True, order_by='Movimentacao.data.desc()'))

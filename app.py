@@ -16,7 +16,7 @@ except ImportError:
 
 import pytz
 
-from models import db, User, Ficha
+from models import db, User, Ficha, Movimentacao
 
 def get_now_br():
     return datetime.now(pytz.timezone('America/Sao_Paulo'))
@@ -29,6 +29,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'in
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+def registrar_movimentacao(ficha, status_novo, descricao=None):
+    mov = Movimentacao(
+        ficha_id=ficha.id,
+        user_id=getattr(current_user, 'id', None),
+        status_anterior=ficha.status,
+        status_novo=status_novo,
+        descricao=descricao
+    )
+    db.session.add(mov)
+    ficha.status = status_novo
+    db.session.commit()
 
 @app.template_filter('format_date')
 def format_date(value, format='%d/%m/%Y'):
@@ -147,10 +159,6 @@ def dashboard():
 @app.route('/p1/gerar', methods=['POST'])
 @login_required
 def gerar_entrevista():
-    if current_user.role != 'ADMIN':
-        flash('Acesso negado.', 'danger')
-        return redirect(url_for('dashboard'))
-
     entrevistador_id = request.form.get('entrevistador_id')
     if not entrevistador_id:
         flash('Selecione um entrevistador.', 'warning')
@@ -162,10 +170,13 @@ def gerar_entrevista():
     ficha = Ficha(
         uuid_link=novo_uuid,
         num_sequencial=num_seq,
-        entrevistador_id=entrevistador_id
+        entrevistador_id=entrevistador_id,
+        status='AGUARDANDO_CANDIDATO'
     )
     db.session.add(ficha)
     db.session.commit()
+    
+    registrar_movimentacao(ficha, 'AGUARDANDO_CANDIDATO', f"Ficha gerada por {current_user.nome}")
 
     link = url_for('preencher_candidato', uuid=novo_uuid, _external=True)
     img = qrcode.make(link)
@@ -251,7 +262,7 @@ def preencher_candidato(uuid):
             except Exception as e:
                 print(f"Erro ao salvar foto: {e}")
 
-        ficha.status = 'ENTREVISTA'
+        registrar_movimentacao(ficha, 'ENTREVISTA', "Dados preenchidos pelo candidato")
         db.session.commit()
         
         # Enviar email para o entrevistador assignado
@@ -305,7 +316,7 @@ def analise(ficha_id):
             ficha.parecer_entrevista_obs = request.form.get('parecer_entrevista_obs')
             ficha.parecer_entrevista_decisao = request.form.get('parecer_entrevista_decisao')
             ficha.parecer_entrevista_data = get_now_br()
-            ficha.status = 'P2'
+            registrar_movimentacao(ficha, 'P2', "Parecer da entrevista registrado")
             db.session.commit()
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.\n\nAcesse: {link}")
@@ -314,7 +325,7 @@ def analise(ficha_id):
             ficha.parecer_p2_obs = request.form.get('parecer_p2_obs')
             ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
             ficha.parecer_p2_data = get_now_br()
-            ficha.status = 'SJD'
+            registrar_movimentacao(ficha, 'SJD', f"Parecer P2 registrado por {current_user.nome}")
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.\n\nAcesse: {link}")
             
@@ -322,21 +333,21 @@ def analise(ficha_id):
             ficha.parecer_sjd_obs = request.form.get('parecer_sjd_obs')
             ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
             ficha.parecer_sjd_data = get_now_br()
-            ficha.status = 'SUBCMT'
+            registrar_movimentacao(ficha, 'SUBCMT', f"Parecer SJD registrado por {current_user.nome}")
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.\n\nAcesse: {link}")
             
         elif current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT':
             ficha.parecer_subcmt_decisao = request.form.get('parecer_subcmt_decisao')
             ficha.parecer_subcmt_data = get_now_br()
-            ficha.status = 'CMT'
+            registrar_movimentacao(ficha, 'CMT', f"Parecer SubCmt registrado por {current_user.nome}")
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('CMT', f"Ação Pendente (CMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de Comando.\n\nAcesse: {link}")
 
         elif current_user.role == 'CMT' and ficha.status == 'CMT':
             ficha.parecer_cmt_decisao = request.form.get('parecer_cmt_decisao')
             ficha.parecer_cmt_data = get_now_br()
-            ficha.status = 'FINALIZADO'
+            registrar_movimentacao(ficha, 'FINALIZADO', f"Decisão final registrada pelo Comando ({current_user.nome})")
 
         db.session.commit()
         flash('Parecer registrado com sucesso!', 'success')
@@ -359,7 +370,7 @@ def avocar(ficha_id):
         novo_entrevistador_id = request.form.get('novo_entrevistador_id')
         
         if novo_status:
-            ficha.status = novo_status
+            registrar_movimentacao(ficha, novo_status, f"Status alterado manualmente (Avocar) por {current_user.nome}")
             
             # Se voltou para AGUARDANDO_CANDIDATO, podemos opcionalmente apagar os dados preenchidos 
             # ou mante-los para o candidato corrigir apenas o que errou (o formulario carrega do DB se mantido, 

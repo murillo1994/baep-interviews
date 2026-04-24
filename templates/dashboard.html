@@ -30,7 +30,7 @@
     </div>
 </div>
 
-{% if current_user.role == 'ADMIN' %}
+{% if current_user.is_authenticated %}
 <div class="row mb-5">
     <div class="col-md-6">
         <div class="card shadow-sm border-0">

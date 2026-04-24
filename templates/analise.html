@@ -440,6 +440,43 @@
     </div>
 </div>
 
+<!-- Histórico de Movimentações -->
+<div class="card shadow border-0 mb-5">
+    <div class="card-header bg-light border-bottom">
+        <h5 class="mb-0 text-muted small fw-bold"><i class="fas fa-history me-2"></i> RASTRO DE MOVIMENTAÇÕES E DATAS</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0 small">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3">Data/Hora</th>
+                        <th>Status</th>
+                        <th>Responsável</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in ficha.movimentacoes %}
+                    <tr>
+                        <td class="ps-3">{{ mov.data | format_date('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ mov.status_novo }}</span>
+                        </td>
+                        <td>{{ mov.user.nome if mov.user else 'Candidato/Sistema' }}</td>
+                        <td>{{ mov.descricao or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-3 text-muted">Nenhuma movimentação registrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </form>
 
 {% endblock %}

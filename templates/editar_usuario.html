@@ -36,7 +36,9 @@
                         <label class="form-label">Função (Role)</label>
                         <select class="form-select" name="role" required>
                             <option value="ENTREVISTADOR" {% if user.role == 'ENTREVISTADOR' %}selected{% endif %}>Oficial Entrevistador</option>
+                            <option value="AUXILIAR_P2" {% if user.role == 'AUXILIAR_P2' %}selected{% endif %}>Auxiliar P2</option>
                             <option value="P2" {% if user.role == 'P2' %}selected{% endif %}>Oficial P2</option>
+                            <option value="AUXILIAR_SJD" {% if user.role == 'AUXILIAR_SJD' %}selected{% endif %}>Auxiliar SJD</option>
                             <option value="SJD" {% if user.role == 'SJD' %}selected{% endif %}>Oficial SJD</option>
                             <option value="SUBCMT" {% if user.role == 'SUBCMT' %}selected{% endif %}>Subcomandante</option>
                             <option value="CMT" {% if user.role == 'CMT' %}selected{% endif %}>Comandante</option>

@@ -36,10 +36,12 @@
                     <div class="mb-3">
                         <label class="form-label">Função (Role)</label>
                         <select class="form-select" name="role" required>
-                            <option value="ENTREVISTADOR">Oficial Entrevistador</option>
-                            <option value="P2">Oficial P2</option>
-                            <option value="SJD">Oficial SJD</option>
-                            <option value="SUBCMT">Subcomandante</option>
+                             <option value="ENTREVISTADOR">Oficial Entrevistador</option>
+                             <option value="AUXILIAR_P2">Auxiliar P2</option>
+                             <option value="P2">Oficial P2</option>
+                             <option value="AUXILIAR_SJD">Auxiliar SJD</option>
+                             <option value="SJD">Oficial SJD</option>
+                             <option value="SUBCMT">Subcomandante</option>
                             <option value="CMT">Comandante</option>
                             <option value="ADMIN">Administrador P1</option>
                         </select>
@@ -80,13 +82,17 @@
                                 <td>
                                     {% if user.role == 'ADMIN' %}
                                     <span class="badge bg-danger">ADMIN P1</span>
-                                    {% elif user.role == 'ENTREVISTADOR' %}
-                                    <span class="badge bg-primary">ENTREVISTADOR</span>
-                                    {% elif user.role == 'P2' %}
-                                    <span class="badge bg-info text-dark">P2</span>
-                                    {% elif user.role == 'SJD' %}
-                                    <span class="badge" style="background-color: #6f42c1;">SJD</span>
-                                    {% elif user.role == 'SUBCMT' %}
+                                     {% elif user.role == 'ENTREVISTADOR' %}
+                                     <span class="badge bg-primary">ENTREVISTADOR</span>
+                                     {% elif user.role == 'AUXILIAR_P2' %}
+                                     <span class="badge bg-info">AUXILIAR P2</span>
+                                     {% elif user.role == 'P2' %}
+                                     <span class="badge bg-info text-dark">P2</span>
+                                     {% elif user.role == 'AUXILIAR_SJD' %}
+                                     <span class="badge" style="background-color: #9c27b0;">AUXILIAR SJD</span>
+                                     {% elif user.role == 'SJD' %}
+                                     <span class="badge" style="background-color: #6f42c1;">SJD</span>
+                                     {% elif user.role == 'SUBCMT' %}
                                     <span class="badge bg-secondary">SUBCMT</span>
                                     {% elif user.role == 'CMT' %}
                                     <span class="badge bg-dark">CMT</span>

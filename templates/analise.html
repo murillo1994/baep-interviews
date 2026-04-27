@@ -311,22 +311,27 @@
         <h5 class="mb-0">Parecer Oficial P2</h5>
     </div>
     <div class="card-body">
-        {% if current_user.role == 'P2' and ficha.status == 'P2' %}
+        {% if current_user.role in ['P2', 'AUXILIAR_P2'] and ficha.status == 'P2' %}
             <div class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label">Observações acerca do levantamento de dados:</label>
-                    <textarea class="form-control" name="parecer_p2_obs" rows="3" required></textarea>
+                    <textarea class="form-control" name="parecer_p2_obs" rows="3" required>{{ ficha.parecer_p2_obs or '' }}</textarea>
                 </div>
+                {% if current_user.role == 'P2' %}
                 <div class="col-md-4">
                     <label class="form-label">Decisão:</label>
                     <select class="form-select" name="parecer_p2_decisao" required>
-                        <option value="Favorável">Favorável</option>
-                        <option value="Desfavorável">Desfavorável</option>
+                        <option value="Favorável" {% if ficha.parecer_p2_decisao == 'Favorável' %}selected{% endif %}>Favorável</option>
+                        <option value="Desfavorável" {% if ficha.parecer_p2_decisao == 'Desfavorável' %}selected{% endif %}>Desfavorável</option>
                     </select>
                 </div>
+                {% endif %}
             </div>
             <div class="mt-3">
-                <button type="submit" class="btn btn-info"><i class="fas fa-save"></i> Salvar Parecer</button>
+                <button type="submit" class="btn btn-info">
+                    <i class="fas fa-save"></i> 
+                    {% if current_user.role == 'P2' %}Salvar Parecer e Enviar{% else %}Salvar Observações{% endif %}
+                </button>
             </div>
         {% else %}
             <div class="alert alert-secondary mb-0">
@@ -347,22 +352,27 @@
         <h5 class="mb-0">Parecer Oficial SJD</h5>
     </div>
     <div class="card-body">
-        {% if current_user.role == 'SJD' and ficha.status == 'SJD' %}
+        {% if current_user.role in ['SJD', 'AUXILIAR_SJD'] and ficha.status == 'SJD' %}
             <div class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label">Observações acerca das consultas realizadas:</label>
-                    <textarea class="form-control" name="parecer_sjd_obs" rows="3" required></textarea>
+                    <textarea class="form-control" name="parecer_sjd_obs" rows="3" required>{{ ficha.parecer_sjd_obs or '' }}</textarea>
                 </div>
+                {% if current_user.role == 'SJD' %}
                 <div class="col-md-4">
                     <label class="form-label">Decisão:</label>
                     <select class="form-select" name="parecer_sjd_decisao" required>
-                        <option value="Favorável">Favorável</option>
-                        <option value="Desfavorável">Desfavorável</option>
+                        <option value="Favorável" {% if ficha.parecer_sjd_decisao == 'Favorável' %}selected{% endif %}>Favorável</option>
+                        <option value="Desfavorável" {% if ficha.parecer_sjd_decisao == 'Desfavorável' %}selected{% endif %}>Desfavorável</option>
                     </select>
                 </div>
+                {% endif %}
             </div>
             <div class="mt-3">
-                <button type="submit" class="btn text-white" style="background-color: #6f42c1;"><i class="fas fa-save"></i> Salvar Parecer</button>
+                <button type="submit" class="btn text-white" style="background-color: #6f42c1;">
+                    <i class="fas fa-save"></i> 
+                    {% if current_user.role == 'SJD' %}Salvar Parecer e Enviar{% else %}Salvar Observações{% endif %}
+                </button>
             </div>
         {% else %}
             <div class="alert alert-secondary mb-0">

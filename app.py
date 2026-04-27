@@ -132,9 +132,9 @@ def dashboard():
     
     if current_user.role == 'ADMIN':
         query = Ficha.query
-    elif current_user.role == 'P2':
+    elif current_user.role in ['P2', 'AUXILIAR_P2']:
         query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['P2', 'SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])))
-    elif current_user.role == 'SJD':
+    elif current_user.role in ['SJD', 'AUXILIAR_SJD']:
         query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SJD', 'SUBCMT', 'CMT', 'FINALIZADO'])))
     elif current_user.role == 'SUBCMT':
         query = Ficha.query.filter(or_(Ficha.entrevistador_id == current_user.id, Ficha.status.in_(['SUBCMT', 'CMT', 'FINALIZADO'])))
@@ -321,21 +321,35 @@ def analise(ficha_id):
             link = url_for('analise', ficha_id=ficha.id, _external=True)
             notificar_usuarios_por_role('P2', f"Ação Pendente (P2): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de P2.\n\nAcesse: {link}")
         
-        elif current_user.role == 'P2' and ficha.status == 'P2':
+        elif (current_user.role == 'P2' or current_user.role == 'AUXILIAR_P2') and ficha.status == 'P2':
             ficha.parecer_p2_obs = request.form.get('parecer_p2_obs')
-            ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
-            ficha.parecer_p2_data = get_now_br()
-            registrar_movimentacao(ficha, 'SJD', f"Parecer P2 registrado por {current_user.nome}")
-            link = url_for('analise', ficha_id=ficha.id, _external=True)
-            notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.\n\nAcesse: {link}")
             
-        elif current_user.role == 'SJD' and ficha.status == 'SJD':
+            if current_user.role == 'P2':
+                ficha.parecer_p2_decisao = request.form.get('parecer_p2_decisao')
+                ficha.parecer_p2_data = get_now_br()
+                registrar_movimentacao(ficha, 'SJD', f"Parecer P2 registrado por {current_user.nome}")
+                link = url_for('analise', ficha_id=ficha.id, _external=True)
+                notificar_usuarios_por_role('SJD', f"Ação Pendente (SJD): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SJD.\n\nAcesse: {link}")
+            else:
+                # Auxiliar P2 apenas salva observações
+                db.session.commit()
+                flash('Observações salvas com sucesso!', 'success')
+                return redirect(url_for('analise', ficha_id=ficha.id))
+            
+        elif (current_user.role == 'SJD' or current_user.role == 'AUXILIAR_SJD') and ficha.status == 'SJD':
             ficha.parecer_sjd_obs = request.form.get('parecer_sjd_obs')
-            ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
-            ficha.parecer_sjd_data = get_now_br()
-            registrar_movimentacao(ficha, 'SUBCMT', f"Parecer SJD registrado por {current_user.nome}")
-            link = url_for('analise', ficha_id=ficha.id, _external=True)
-            notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.\n\nAcesse: {link}")
+            
+            if current_user.role == 'SJD':
+                ficha.parecer_sjd_decisao = request.form.get('parecer_sjd_decisao')
+                ficha.parecer_sjd_data = get_now_br()
+                registrar_movimentacao(ficha, 'SUBCMT', f"Parecer SJD registrado por {current_user.nome}")
+                link = url_for('analise', ficha_id=ficha.id, _external=True)
+                notificar_usuarios_por_role('SUBCMT', f"Ação Pendente (SUBCMT): {ficha.nome_completo}", f"A ficha de {ficha.nome_completo} ({ficha.num_sequencial}) está aguardando o seu parecer de SubCmt.\n\nAcesse: {link}")
+            else:
+                # Auxiliar SJD apenas salva observações
+                db.session.commit()
+                flash('Observações salvas com sucesso!', 'success')
+                return redirect(url_for('analise', ficha_id=ficha.id))
             
         elif current_user.role == 'SUBCMT' and ficha.status == 'SUBCMT':
             ficha.parecer_subcmt_decisao = request.form.get('parecer_subcmt_decisao')
@@ -636,7 +650,9 @@ def init_db():
             db.session.add(User(username='admin', password=generate_password_hash('admin123'), nome='Administrador P1', email='admin@baep.com', role='ADMIN'))
             db.session.add(User(username='entrev', password=generate_password_hash('senha123'), nome='Oficial Silva', email='entrev@baep.com', role='ENTREVISTADOR'))
             db.session.add(User(username='p2', password=generate_password_hash('senha123'), nome='Oficial P2', email='p2@baep.com', role='P2'))
+            db.session.add(User(username='aux_p2', password=generate_password_hash('senha123'), nome='Auxiliar P2', email='aux_p2@baep.com', role='AUXILIAR_P2'))
             db.session.add(User(username='sjd', password=generate_password_hash('senha123'), nome='Oficial SJD', email='sjd@baep.com', role='SJD'))
+            db.session.add(User(username='aux_sjd', password=generate_password_hash('senha123'), nome='Auxiliar SJD', email='aux_sjd@baep.com', role='AUXILIAR_SJD'))
             db.session.add(User(username='subcmt', password=generate_password_hash('senha123'), nome='Subcomandante', email='subcmt@baep.com', role='SUBCMT'))
             db.session.add(User(username='cmt', password=generate_password_hash('senha123'), nome='Comandante', email='cmt@baep.com', role='CMT'))
             db.session.commit()

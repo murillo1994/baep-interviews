@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(200), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(20), nullable=False) # Roles: ADMIN (P1), ENTREVISTADOR, P2, SJD, SUBCMT, CMT
+    role = db.Column(db.String(20), nullable=False) # Roles: ADMIN (P1), ENTREVISTADOR, AUXILIAR_P2, P2, AUXILIAR_SJD, SJD, SUBCMT, CMT
 
 class Ficha(db.Model):
     id = db.Column(db.Integer, primary_key=True)

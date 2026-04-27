@@ -136,4 +136,4 @@ class Movimentacao(db.Model):
     descricao = db.Column(db.Text)
     
     user = db.relationship('User')
-    ficha = db.relationship('Ficha', backref=db.backref('movimentacoes', lazy=True, order_by='Movimentacao.data.desc()'))
+    ficha = db.relationship('Ficha', backref=db.backref('movimentacoes', lazy=True, order_by='Movimentacao.data.desc()', cascade="all, delete-orphan"))
